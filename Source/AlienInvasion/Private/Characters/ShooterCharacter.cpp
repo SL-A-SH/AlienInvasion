@@ -48,6 +48,16 @@ void AShooterCharacter::Move(const FInputActionValue& Value)
 	AddMovementInput(RightDirection, MovementVector.X);
 }
 
+void AShooterCharacter::Look(const FInputActionValue& Value)
+{
+	const FVector2D LookAxisValue = Value.Get<FVector2D>();
+	if (GetController())
+	{
+		AddControllerYawInput(LookAxisValue.X * -1);
+		AddControllerPitchInput(LookAxisValue.Y);
+	}
+}
+
 void AShooterCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -61,6 +71,7 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
 	{
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AShooterCharacter::Move);
+		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AShooterCharacter::Look);
 	}
 }
 
