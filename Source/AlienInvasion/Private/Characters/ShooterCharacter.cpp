@@ -7,6 +7,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 AShooterCharacter::AShooterCharacter()
 {
@@ -73,7 +74,10 @@ void AShooterCharacter::Look(const FInputActionValue& Value)
 
 void AShooterCharacter::FireWeapon(const FInputActionValue& Value)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Fire"))
+	if (FireSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
+	}
 }
 
 void AShooterCharacter::Jump()
