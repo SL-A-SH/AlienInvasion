@@ -8,6 +8,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Engine/SkeletalMeshSocket.h"
 
 AShooterCharacter::AShooterCharacter()
 {
@@ -77,6 +78,17 @@ void AShooterCharacter::FireWeapon(const FInputActionValue& Value)
 	if (FireSound)
 	{
 		UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
+	}
+
+	const USkeletalMeshSocket* BarrelSocket = GetMesh()->GetSocketByName("BarrelSocket");
+	if (BarrelSocket)
+	{
+		const FTransform SocketTransform = BarrelSocket->GetSocketTransform(GetMesh());
+
+		if (MuzzleFlash)
+		{
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), MuzzleFlash, SocketTransform);
+		}
 	}
 }
 

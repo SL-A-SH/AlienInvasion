@@ -11,6 +11,8 @@ class USpringArmComponent;
 class UCameraComponent;
 class UInputMappingContext;
 class UInputAction;
+class USoundBase;
+class UParticleSystem;
 
 UCLASS()
 class ALIENINVASION_API AShooterCharacter : public ACharacter
@@ -57,4 +59,8 @@ private:
 	/** Randomized gunshot sound */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
 	USoundBase* FireSound;
+
+	/** Flash spawned at BarrelSocket */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	UParticleSystem* MuzzleFlash;
 };
