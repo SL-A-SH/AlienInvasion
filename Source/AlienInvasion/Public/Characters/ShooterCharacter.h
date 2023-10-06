@@ -13,6 +13,7 @@ class UInputMappingContext;
 class UInputAction;
 class USoundBase;
 class UParticleSystem;
+class UAnimMontage;
 
 UCLASS()
 class ALIENINVASION_API AShooterCharacter : public ACharacter
@@ -63,4 +64,7 @@ private:
 	/** Flash spawned at BarrelSocket */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
 	UParticleSystem* MuzzleFlash;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	UAnimMontage* HipFireMontage;
 };
