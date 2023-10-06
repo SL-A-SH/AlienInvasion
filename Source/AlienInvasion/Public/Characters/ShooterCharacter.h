@@ -4,10 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "InputActionValue.h"
 #include "ShooterCharacter.generated.h"
 
 class USpringArmComponent;
 class UCameraComponent;
+class UInputMappingContext;
+class UInputAction;
 
 UCLASS()
 class ALIENINVASION_API AShooterCharacter : public ACharacter
@@ -21,6 +24,16 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+
+	/** Input actions */
+	UPROPERTY(EditAnywhere, Category = Input)
+	UInputMappingContext* ShooterCharacterMappingContext;
+
+	UPROPERTY(EditAnywhere, Category = Input)
+	UInputAction* MoveAction;
+
+	/** Input callbacks */
+	void Move(const FInputActionValue& Value);
 
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
