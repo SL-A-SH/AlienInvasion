@@ -71,6 +71,11 @@ void AShooterCharacter::Look(const FInputActionValue& Value)
 	}
 }
 
+void AShooterCharacter::FireWeapon(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Fire"))
+}
+
 void AShooterCharacter::Jump()
 {
 	Super::Jump();
@@ -91,6 +96,7 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AShooterCharacter::Move);
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AShooterCharacter::Look);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &AShooterCharacter::Jump);
+		EnhancedInputComponent->BindAction(FireButtonAction, ETriggerEvent::Triggered, this, &AShooterCharacter::FireWeapon);
 	}
 }
 

@@ -38,9 +38,13 @@ protected:
 	UPROPERTY(EditAnywhere, Category = Input)
 	UInputAction* JumpAction;
 
+	UPROPERTY(EditAnywhere, Category = Input)
+	UInputAction* FireButtonAction;
+
 	/** Input callbacks */
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
+	void FireWeapon(const FInputActionValue& Value);
 	void Jump();
 
 private:
