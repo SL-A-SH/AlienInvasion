@@ -35,9 +35,13 @@ protected:
 	UPROPERTY(EditAnywhere, Category = Input)
 	UInputAction* LookAction;
 
+	UPROPERTY(EditAnywhere, Category = Input)
+	UInputAction* JumpAction;
+
 	/** Input callbacks */
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
+	void Jump();
 
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
