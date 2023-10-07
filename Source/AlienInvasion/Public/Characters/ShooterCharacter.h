@@ -149,6 +149,10 @@ private:
 	bool bFiringBullet = false;
 	FTimerHandle CrosshairShootTimer;
 
+	/** Check to see if character can jump */
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	bool bCanJump = true;
+
 public:
 	FORCEINLINE bool GetAiming() const { return bAiming; }
 

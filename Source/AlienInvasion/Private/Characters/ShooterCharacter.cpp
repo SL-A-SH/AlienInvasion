@@ -109,7 +109,11 @@ void AShooterCharacter::Look(const FInputActionValue& Value)
 
 void AShooterCharacter::Jump()
 {
-	Super::Jump();
+	if (bCanJump)
+	{
+		Super::Jump();
+		bCanJump = false;
+	}
 }
 
 void AShooterCharacter::FireWeapon(const FInputActionValue& Value)
