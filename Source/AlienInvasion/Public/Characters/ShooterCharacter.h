@@ -14,6 +14,7 @@ class UInputAction;
 class USoundBase;
 class UParticleSystem;
 class UAnimMontage;
+class AItem;
 
 UCLASS()
 class ALIENINVASION_API AShooterCharacter : public ACharacter
@@ -55,9 +56,11 @@ protected:
 	void AimButton(const FInputActionValue& Value);
 
 	bool GetBeamEndLocation(const FVector& MuzzleSocketLocation, FVector& OutBeamLocation);
+	bool TraceUnderCrosshairs(FHitResult& OutHitResult, FVector& OutHitLocation);
 	void CameraInterpZoom(float DeltaTime);
 	void SetLookRates();
 	void CalculateCrosshairSpread(float DeltaTime);
+	void TraceForItems();
 
 	void StartCrosshairBulletFire();
 
@@ -153,9 +156,24 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	bool bCanJump = true;
 
+	/** True if we should trace every frame for items */
+	bool bShouldTraceForItems = false;
+
+	/** Number of overlapped AItems */
+	int8 OverlappedItemCount;
+
+	/** The AItem we traced last frame */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Items, meta = (AllowPrivateAccess = "true"))
+	AItem* TraceHitItemLastFrame;
+
 public:
 	FORCEINLINE bool GetAiming() const { return bAiming; }
 
 	UFUNCTION(BlueprintCallable)
 	float GetCrosshairSpreadMultiplier() const;
+
+	FORCEINLINE int8 GetOverlappedItemCount() const { return OverlappedItemCount; }
+
+	/** Add/subtracts to/from OverlappedItemCount and updates bShouldTraceForItems */
+	void UpdateOverlappedItemCount(int8 Amount);
 };
