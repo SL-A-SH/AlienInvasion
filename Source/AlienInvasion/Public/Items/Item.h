@@ -7,6 +7,7 @@
 #include "Item.generated.h"
 
 class UBoxComponent;
+class UWidgetComponent;
 
 UCLASS()
 class ALIENINVASION_API AItem : public AActor
@@ -26,4 +27,7 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
 	UBoxComponent* CollisionBox;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	UWidgetComponent* PickupWidget;
 };
