@@ -12,6 +12,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "Items/Item.h"
+#include "Items/Weapons/Weapon.h"
 
 AShooterCharacter::AShooterCharacter()
 {
@@ -88,6 +89,8 @@ void AShooterCharacter::BeginPlay()
 		CameraDefaultFOV = FollowCamera->FieldOfView;
 		CameraCurrentFOV = CameraDefaultFOV;
 	}
+
+	SpawnDefaultWeapon();
 }
 
 void AShooterCharacter::Move(const FInputActionValue& Value)
@@ -366,6 +369,25 @@ void AShooterCharacter::TraceForItems()
 	{
 		// No longer overlapping any items
 		TraceHitItemLastFrame->GetPickupWidget()->SetVisibility(false);
+	}
+}
+
+void AShooterCharacter::SpawnDefaultWeapon()
+{
+	if (DefaultWeaponClass)
+	{
+		// Spawn the weapon
+		AWeapon* DefaultWeapon = GetWorld()->SpawnActor<AWeapon>(DefaultWeaponClass);
+
+		// Get the hand socket
+		const USkeletalMeshSocket* HandSocket = GetMesh()->GetSocketByName(FName("RightHandSocket"));
+		if (HandSocket)
+		{
+			// Attach weapon to the hand socket
+			HandSocket->AttachActor(DefaultWeapon, GetMesh());
+		}
+
+		EquippedWeapon = DefaultWeapon;
 	}
 }
 

@@ -15,6 +15,7 @@ class USoundBase;
 class UParticleSystem;
 class UAnimMontage;
 class AItem;
+class AWeapon;
 
 UCLASS()
 class ALIENINVASION_API AShooterCharacter : public ACharacter
@@ -61,6 +62,7 @@ protected:
 	void SetLookRates();
 	void CalculateCrosshairSpread(float DeltaTime);
 	void TraceForItems();
+	void SpawnDefaultWeapon();
 
 	void StartCrosshairBulletFire();
 
@@ -165,6 +167,14 @@ private:
 	/** The AItem we traced last frame */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Items, meta = (AllowPrivateAccess = "true"))
 	AItem* TraceHitItemLastFrame;
+
+	/** Currently equipped weapon */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	class AWeapon* EquippedWeapon;
+
+	/** Set this in blueprints for the default weapon class */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<AWeapon> DefaultWeaponClass;
 
 public:
 	FORCEINLINE bool GetAiming() const { return bAiming; }
