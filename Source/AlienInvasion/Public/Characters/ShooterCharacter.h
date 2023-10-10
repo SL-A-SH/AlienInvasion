@@ -62,7 +62,9 @@ protected:
 	void SetLookRates();
 	void CalculateCrosshairSpread(float DeltaTime);
 	void TraceForItems();
-	void SpawnDefaultWeapon();
+	AWeapon* SpawnDefaultWeapon();
+
+	void EquipWeapon(AWeapon* WeaponToEquip);
 
 	void StartCrosshairBulletFire();
 
