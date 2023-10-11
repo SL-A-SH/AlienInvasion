@@ -49,12 +49,17 @@ protected:
 	UPROPERTY(EditAnywhere, Category = Input)
 	UInputAction* AimButtonAction;
 
+	UPROPERTY(EditAnywhere, Category = Input)
+	UInputAction* ActionButtonAction;
+
 	/** Input callbacks */
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
 	void Jump();
 	void FireWeapon(const FInputActionValue& Value);
 	void AimButton(const FInputActionValue& Value);
+	void ActionButton(const FInputActionValue& Value);
+
 
 	bool GetBeamEndLocation(const FVector& MuzzleSocketLocation, FVector& OutBeamLocation);
 	bool TraceUnderCrosshairs(FHitResult& OutHitResult, FVector& OutHitLocation);
@@ -65,6 +70,7 @@ protected:
 	AWeapon* SpawnDefaultWeapon();
 
 	void EquipWeapon(AWeapon* WeaponToEquip);
+	void DropWeapon();
 
 	void StartCrosshairBulletFire();
 

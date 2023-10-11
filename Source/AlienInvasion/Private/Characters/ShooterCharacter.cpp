@@ -70,6 +70,7 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &AShooterCharacter::Jump);
 		EnhancedInputComponent->BindAction(FireButtonAction, ETriggerEvent::Triggered, this, &AShooterCharacter::FireWeapon);
 		EnhancedInputComponent->BindAction(AimButtonAction, ETriggerEvent::Triggered, this, &AShooterCharacter::AimButton);
+		EnhancedInputComponent->BindAction(ActionButtonAction, ETriggerEvent::Triggered, this, &AShooterCharacter::ActionButton);
 	}
 }
 
@@ -189,6 +190,11 @@ void AShooterCharacter::AimButton(const FInputActionValue& Value)
 	{
 		bAiming = false;
 	}
+}
+
+void AShooterCharacter::ActionButton(const FInputActionValue& Value)
+{
+	DropWeapon();
 }
 
 bool AShooterCharacter::GetBeamEndLocation(const FVector& MuzzleSocketLocation, FVector& OutBeamLocation)
@@ -402,6 +408,17 @@ void AShooterCharacter::EquipWeapon(AWeapon* WeaponToEquip)
 		EquippedWeapon->SetItemState(EItemState::EIS_Equipped);
 	}
 	
+}
+
+void AShooterCharacter::DropWeapon()
+{
+	if (EquippedWeapon)
+	{
+		FDetachmentTransformRules DetachmentTransformRules(EDetachmentRule::KeepWorld, true);
+		EquippedWeapon->GetItemMesh()->DetachFromComponent(DetachmentTransformRules);
+
+		EquippedWeapon->SetItemState(EItemState::EIS_Falling);
+	}
 }
 
 void AShooterCharacter::StartCrosshairBulletFire()
