@@ -74,7 +74,6 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	}
 }
 
-
 void AShooterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
@@ -95,6 +94,15 @@ void AShooterCharacter::BeginPlay()
 
 	// Spawn the default weapon and equip it
 	EquipWeapon(SpawnDefaultWeapon());
+}
+
+void AShooterCharacter::GetPickupItem(AItem* Item)
+{
+	auto Weapon = Cast<AWeapon>(Item);
+	if (Weapon)
+	{
+		SwapWeapon(Weapon);
+	}
 }
 
 void AShooterCharacter::Move(const FInputActionValue& Value)
@@ -196,8 +204,7 @@ void AShooterCharacter::ActionButton(const FInputActionValue& Value)
 {
 	if (TraceHitItem)
 	{
-		AWeapon* TraceHitWeapon = Cast<AWeapon>(TraceHitItem);
-		SwapWeapon(TraceHitWeapon);
+		TraceHitItem->StartItemCurve(this);
 	}
 }
 
@@ -465,4 +472,13 @@ void AShooterCharacter::UpdateOverlappedItemCount(int8 Amount)
 		OverlappedItemCount += Amount;
 		bShouldTraceForItems = true;
 	}
+}
+
+FVector AShooterCharacter::GetCameraInterpLocation()
+{
+	const FVector CameraWorldLocation = FollowCamera->GetComponentLocation();
+	const FVector CameraForward = FollowCamera->GetForwardVector();
+	const FVector CameraUp = FollowCamera->GetUpVector();
+
+	return CameraWorldLocation + CameraForward * CameraInterpDistance + CameraUp * CameraInterpElevation;
 }

@@ -27,6 +27,8 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	void GetPickupItem(AItem* Item);
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -188,7 +190,16 @@ private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<AWeapon> DefaultWeaponClass;
 
+	/** Distance outward from the camera for the interp destination */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	float CameraInterpDistance = 200.f;
+
+	/** Distance upward from the camera for the interp destination */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	float CameraInterpElevation = 65.f;
+
 public:
+	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 	FORCEINLINE bool GetAiming() const { return bAiming; }
 
 	UFUNCTION(BlueprintCallable)
@@ -198,4 +209,5 @@ public:
 
 	/** Add/subtracts to/from OverlappedItemCount and updates bShouldTraceForItems */
 	void UpdateOverlappedItemCount(int8 Amount);
+	FVector GetCameraInterpLocation();
 };
