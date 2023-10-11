@@ -28,5 +28,5 @@ private:
 	bool bFalling = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
-	float ImpulseMultiplier = 300.f;
+	float ImpulseMultiplier = 5000.f;
 };

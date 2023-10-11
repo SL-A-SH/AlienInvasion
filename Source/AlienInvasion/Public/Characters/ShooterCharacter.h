@@ -60,17 +60,17 @@ protected:
 	void AimButton(const FInputActionValue& Value);
 	void ActionButton(const FInputActionValue& Value);
 
-
 	bool GetBeamEndLocation(const FVector& MuzzleSocketLocation, FVector& OutBeamLocation);
 	bool TraceUnderCrosshairs(FHitResult& OutHitResult, FVector& OutHitLocation);
 	void CameraInterpZoom(float DeltaTime);
 	void SetLookRates();
 	void CalculateCrosshairSpread(float DeltaTime);
 	void TraceForItems();
-	AWeapon* SpawnDefaultWeapon();
 
+	AWeapon* SpawnDefaultWeapon();
 	void EquipWeapon(AWeapon* WeaponToEquip);
 	void DropWeapon();
+	void SwapWeapon(AWeapon* WeaponToSwap);
 
 	void StartCrosshairBulletFire();
 
@@ -175,6 +175,10 @@ private:
 	/** The AItem we traced last frame */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Items, meta = (AllowPrivateAccess = "true"))
 	AItem* TraceHitItemLastFrame;
+
+	/** The item currently hit by our trace in TraceForItems */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Items, meta = (AllowPrivateAccess = "true"))
+	AItem* TraceHitItem;
 
 	/** Currently equipped weapon */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
