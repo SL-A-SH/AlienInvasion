@@ -18,6 +18,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	void ThrowWeapon();
+	void DecrementAmmo();
 
 protected:
 	void StopFalling();
@@ -29,4 +30,10 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
 	float ImpulseMultiplier = 5000.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AllowPrivateAccess = "true"))
+	int32 Ammo = 0;
+
+public:
+	FORCEINLINE int32 GetAmmo() const { return Ammo; }
 };
