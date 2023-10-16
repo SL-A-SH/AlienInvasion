@@ -36,6 +36,7 @@ class UWidgetComponent;
 class USphereComponent;
 class UCurveFloat;
 class AShooterCharacter;
+class PickupSound;
 
 UCLASS()
 class ALIENINVASION_API AItem : public AActor
@@ -116,6 +117,12 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
 	AShooterCharacter* ShooterCharacter;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	USoundBase* PickupSound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	USoundBase* EquipSound;
+
 public:
 	FORCEINLINE UWidgetComponent* GetPickupWidget() const { return PickupWidget; }
 	FORCEINLINE USphereComponent* GetItemSphere() const { return ItemSphere; }
@@ -123,4 +130,6 @@ public:
 	FORCEINLINE EItemState GetItemState() const { return ItemState; }
 	void SetItemState(EItemState State);
 	FORCEINLINE USkeletalMeshComponent* GetItemMesh() const { return ItemMesh; }
+	FORCEINLINE USoundBase* GetPickupSound() const { return PickupSound; }
+	FORCEINLINE USoundBase* GetEquipSound() const { return EquipSound; }
 };

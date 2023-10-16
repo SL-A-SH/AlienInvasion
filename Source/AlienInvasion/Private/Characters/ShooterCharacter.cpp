@@ -103,6 +103,11 @@ void AShooterCharacter::BeginPlay()
 
 void AShooterCharacter::GetPickupItem(AItem* Item)
 {
+	if (Item->GetEquipSound())
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, Item->GetEquipSound(), GetActorLocation());
+	}
+
 	auto Weapon = Cast<AWeapon>(Item);
 	if (Weapon)
 	{
@@ -176,6 +181,11 @@ void AShooterCharacter::ActionButton(const FInputActionValue& Value)
 	if (TraceHitItem)
 	{
 		TraceHitItem->StartItemCurve(this);
+
+		if (TraceHitItem->GetPickupSound())
+		{
+			UGameplayStatics::PlaySoundAtLocation(this, TraceHitItem->GetPickupSound(), GetActorLocation());
+		}
 	}
 }
 
