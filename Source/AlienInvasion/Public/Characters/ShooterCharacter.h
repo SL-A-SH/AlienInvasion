@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
+#include "Items/Weapons/AmmoType.h"
 #include "ShooterCharacter.generated.h"
 
 class USpringArmComponent;
@@ -18,12 +19,13 @@ class AItem;
 class AWeapon;
 
 UENUM(BlueprintType)
-enum class EAmmoType : uint8
+enum class ECombatState : uint8
 {
-	EAT_9mm UMETA(DisplayName = "9mm"),
-	EAT_AR UMETA(DisplayName = "AssaultRifle"),
+	ECS_Unoccupied UMETA(DisplayName = "Unoccupied"),
+	ECS_Firing UMETA(DisplayName = "Firing"),
+	ECS_Reloading UMETA(DisplayName = "Reloading"),
 
-	EAT_MAX UMETA(DisplayName = "DefaultMAX")
+	ECS_MAX UMETA(DisplayName = "DefaultMAX")
 };
 
 UCLASS()
@@ -63,14 +65,23 @@ protected:
 	UPROPERTY(EditAnywhere, Category = Input)
 	UInputAction* ActionButtonAction;
 
+	UPROPERTY(EditAnywhere, Category = Input)
+	UInputAction* ReloadButtonAction;
+
 	/** Input callbacks */
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
 	void Jump();
-	void FireWeapon(const FInputActionValue& Value);
+	void FireButtonPressed(const FInputActionValue& Value);
 	void AimButton(const FInputActionValue& Value);
 	void ActionButton(const FInputActionValue& Value);
+	void ReloadButtonPressed(const FInputActionValue& Value);
 
+	void FireWeapon();
+	void ReloadWeapon();
+	void PlayFireSound();
+	void SendBullet();
+	void PlayGunfireMontage();
 	bool GetBeamEndLocation(const FVector& MuzzleSocketLocation, FVector& OutBeamLocation);
 	bool TraceUnderCrosshairs(FHitResult& OutHitResult, FVector& OutHitLocation);
 	void CameraInterpZoom(float DeltaTime);
@@ -84,6 +95,7 @@ protected:
 	void SwapWeapon(AWeapon* WeaponToSwap);
 	void InitializeAmmoMap();
 	bool WeaponHasAmmo();
+	bool CarryingAmmo();
 
 	void StartCrosshairBulletFire();
 
@@ -168,8 +180,8 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Crosshairs, meta = (AllowPrivateAccess = "true"))
 	float CrosshairShootingFactor = 0.f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
-	UAnimMontage* HipFireMontage;
+	/** Left mouse button or right console trigger pressed */
+	bool bFireButtonPressed;
 
 	float ShootTimeDuration = 0.05f;
 	bool bFiringBullet = false;
@@ -220,6 +232,20 @@ private:
 	/** Starting amount of AR ammo */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Items, meta = (AllowPrivateAccess = "true"))
 	int32 StartingARAmmo = 120;
+
+	/** Combat State, can only fire or reload if unoccupied */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	ECombatState CombatState = ECombatState::ECS_Unoccupied;
+
+	UFUNCTION(BlueprintCallable)
+	void FinishReloading();
+
+	/** Animation Montages */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	UAnimMontage* HipFireMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	UAnimMontage* ReloadMontage;
 
 public:
 	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }

@@ -52,6 +52,12 @@ void AWeapon::DecrementAmmo()
 	}
 }
 
+void AWeapon::ReloadAmmo(int32 Amount)
+{
+	checkf(Ammo + Amount <= MagazineCapacity, TEXT("Attempted to reload with more than magazine capacity"));
+	Ammo += Amount;
+}
+
 void AWeapon::StopFalling()
 {
 	bFalling = false;
