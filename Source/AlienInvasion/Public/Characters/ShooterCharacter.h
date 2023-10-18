@@ -269,6 +269,7 @@ public:
 	float GetCrosshairSpreadMultiplier() const;
 
 	FORCEINLINE int8 GetOverlappedItemCount() const { return OverlappedItemCount; }
+	FORCEINLINE ECombatState GetCombatState() const { return CombatState; }
 
 	/** Add/subtracts to/from OverlappedItemCount and updates bShouldTraceForItems */
 	void UpdateOverlappedItemCount(int8 Amount);
