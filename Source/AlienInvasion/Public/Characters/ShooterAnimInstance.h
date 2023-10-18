@@ -35,6 +35,7 @@ public:
 
 protected:
 	void TurnInPlace();
+	void Lean(float DeltaTime);
 
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
@@ -60,9 +61,9 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
 	bool bAiming = false;
 
-	float CharacterYaw = 0.f;
+	float TIPCharacterYaw = 0.f;
 
-	float CharacterYawLastFrame = 0.f;
+	float TIPCharacterYawLastFrame = 0.f;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Turn In Place", meta = (AllowPrivateAccess = "true"))
 	float RootYawOffset = 0.f;
@@ -79,4 +80,11 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Turn In Place", meta = (AllowPrivateAccess = "true"))
 	EOffsetState OffsetState = EOffsetState::EOS_Hip;
+
+	FRotator CharacterRotation = FRotator(0.f);
+
+	FRotator CharacterRotationLastFrame = FRotator(0.f);
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Lean", meta = (AllowPrivateAccess = "true"))
+	float YawDelta = 0.f;
 };
