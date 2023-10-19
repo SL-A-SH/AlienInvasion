@@ -68,6 +68,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = Input)
 	UInputAction* ReloadButtonAction;
 
+	UPROPERTY(EditAnywhere, Category = Input)
+	UInputAction* CrouchAction;
+
 	/** Input callbacks */
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
@@ -76,6 +79,7 @@ protected:
 	void AimButton(const FInputActionValue& Value);
 	void ActionButton(const FInputActionValue& Value);
 	void ReloadButtonPressed(const FInputActionValue& Value);
+	void Crouch();
 
 	void FireWeapon();
 	void ReloadWeapon();
@@ -254,8 +258,12 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
 	USceneComponent* HandSceneComponent;
 
+	/** True when crouching */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	bool bCrouching = false;
+
 	/** Animation Montages */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Movement, meta = (AllowPrivateAccess = "true"))
 	UAnimMontage* HipFireMontage;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
@@ -264,6 +272,7 @@ private:
 public:
 	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 	FORCEINLINE bool GetAiming() const { return bAiming; }
+	FORCEINLINE bool GetCrouching() const { return bCrouching; }
 
 	UFUNCTION(BlueprintCallable)
 	float GetCrosshairSpreadMultiplier() const;

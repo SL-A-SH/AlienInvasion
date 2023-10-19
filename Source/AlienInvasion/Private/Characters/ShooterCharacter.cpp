@@ -74,6 +74,7 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 		EnhancedInputComponent->BindAction(AimButtonAction, ETriggerEvent::Triggered, this, &AShooterCharacter::AimButton);
 		EnhancedInputComponent->BindAction(ActionButtonAction, ETriggerEvent::Triggered, this, &AShooterCharacter::ActionButton);
 		EnhancedInputComponent->BindAction(ReloadButtonAction, ETriggerEvent::Triggered, this, &AShooterCharacter::ReloadButtonPressed);
+		EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Triggered, this, &AShooterCharacter::Crouch);
 	}
 }
 
@@ -192,6 +193,14 @@ void AShooterCharacter::ActionButton(const FInputActionValue& Value)
 void AShooterCharacter::ReloadButtonPressed(const FInputActionValue& Value)
 {
 	ReloadWeapon();
+}
+
+void AShooterCharacter::Crouch()
+{
+	if (!GetCharacterMovement()->IsFalling())
+	{
+		bCrouching = !bCrouching;
+	}
 }
 
 void AShooterCharacter::FireWeapon()
