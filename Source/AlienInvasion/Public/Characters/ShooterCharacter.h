@@ -74,7 +74,7 @@ protected:
 	/** Input callbacks */
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
-	void Jump();
+	virtual void Jump() override;
 	void FireButtonPressed(const FInputActionValue& Value);
 	void AimButton(const FInputActionValue& Value);
 	void ActionButton(const FInputActionValue& Value);
@@ -261,6 +261,12 @@ private:
 	/** True when crouching */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
 	bool bCrouching = false;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
+	float BaseMovementSpeed = 650.f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
+	float CrouchMovementSpeed = 300.f;
 
 	/** Animation Montages */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Movement, meta = (AllowPrivateAccess = "true"))

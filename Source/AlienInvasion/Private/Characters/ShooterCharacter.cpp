@@ -100,6 +100,8 @@ void AShooterCharacter::BeginPlay()
 	EquipWeapon(SpawnDefaultWeapon());
 
 	InitializeAmmoMap();
+
+	GetCharacterMovement()->MaxWalkSpeed = BaseMovementSpeed;
 }
 
 void AShooterCharacter::GetPickupItem(AItem* Item)
@@ -144,8 +146,16 @@ void AShooterCharacter::Jump()
 {
 	if (bCanJump)
 	{
-		Super::Jump();
-		bCanJump = false;
+		if (bCrouching)
+		{
+			bCrouching = false;
+			GetCharacterMovement()->MaxWalkSpeed = BaseMovementSpeed;
+		}
+		else
+		{
+			Super::Jump();
+			bCanJump = false;
+		}
 	}
 }
 
@@ -200,6 +210,15 @@ void AShooterCharacter::Crouch()
 	if (!GetCharacterMovement()->IsFalling())
 	{
 		bCrouching = !bCrouching;
+	}
+
+	if (bCrouching)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = CrouchMovementSpeed;
+	}
+	else
+	{
+		GetCharacterMovement()->MaxWalkSpeed = BaseMovementSpeed;
 	}
 }
 
