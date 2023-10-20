@@ -16,6 +16,7 @@
 #include "Engine/SkeletalMeshSocket.h"
 #include "Items/Item.h"
 #include "Items/Weapons/Weapon.h"
+#include "Items/Ammo/Ammo.h"
 
 AShooterCharacter::AShooterCharacter()
 {
@@ -23,7 +24,7 @@ AShooterCharacter::AShooterCharacter()
 
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
-	CameraBoom->TargetArmLength = 200.f;
+	CameraBoom->TargetArmLength = 250.f;
 	CameraBoom->bUsePawnControlRotation = true;
 	CameraBoom->SocketOffset = FVector(0.f, 35.f, 80.f);
 
@@ -119,6 +120,12 @@ void AShooterCharacter::GetPickupItem(AItem* Item)
 	if (Weapon)
 	{
 		SwapWeapon(Weapon);
+	}
+
+	auto Ammo = Cast<AAmmo>(Item);
+	if (Ammo)
+	{
+		PickupAmmo(Ammo);
 	}
 }
 
@@ -609,6 +616,30 @@ bool AShooterCharacter::CarryingAmmo()
 	}
 
 	return false;
+}
+
+void AShooterCharacter::PickupAmmo(AAmmo* Ammo)
+{
+	// check to see if AmmoMap contains Ammo's AmmoType
+	if (AmmoMap.Find(Ammo->GetAmmoType()))
+	{
+		// Get amount of ammo in the AmmoMap for Ammo's type
+		int32 AmmoCount = AmmoMap[Ammo->GetAmmoType()];
+		AmmoCount += Ammo->GetItemCount();
+
+		// Set the amount of ammo in the Map for Ammo's type
+		AmmoMap[Ammo->GetAmmoType()] = AmmoCount;
+	}
+
+	if (EquippedWeapon && EquippedWeapon->GetAmmoType() == Ammo->GetAmmoType())
+	{
+		if (EquippedWeapon->GetAmmo() <= 0)
+		{
+			ReloadWeapon();
+		}
+	}
+
+	Ammo->Destroy();
 }
 
 void AShooterCharacter::StartCrosshairBulletFire()

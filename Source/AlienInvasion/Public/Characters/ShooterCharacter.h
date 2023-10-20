@@ -17,6 +17,7 @@ class UParticleSystem;
 class UAnimMontage;
 class AItem;
 class AWeapon;
+class AAmmo;
 
 UENUM(BlueprintType)
 enum class ECombatState : uint8
@@ -102,6 +103,7 @@ protected:
 	void InitializeAmmoMap();
 	bool WeaponHasAmmo();
 	bool CarryingAmmo();
+	void PickupAmmo(AAmmo* Ammo);
 
 	void StartCrosshairBulletFire();
 

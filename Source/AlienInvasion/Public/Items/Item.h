@@ -30,7 +30,6 @@ enum class EItemState : uint8
 	EIS_MAX UMETA(DisplayName = "DefaultMAX")
 };
 
-
 class UBoxComponent;
 class UWidgetComponent;
 class USphereComponent;
@@ -52,6 +51,18 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties")
+	USkeletalMeshComponent* ItemMesh;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Properties")
+	UBoxComponent* CollisionBox;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Properties")
+	UWidgetComponent* PickupWidget;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Properties")
+	USphereComponent* ItemSphere;
+
 	UFUNCTION()
 	virtual void OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
@@ -59,23 +70,11 @@ protected:
 	virtual void OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 	void SetActiveStars();
-	void SetItemProperties(EItemState State);
+	virtual void SetItemProperties(EItemState State);
 	void FinishInterping();
 	void ItemInterp(float DeltaTime);
 
 private:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
-	USkeletalMeshComponent* ItemMesh;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
-	UBoxComponent* CollisionBox;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
-	UWidgetComponent* PickupWidget;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
-	USphereComponent* ItemSphere;
-
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
 	FString ItemName = FString("Default");
 
@@ -132,4 +131,5 @@ public:
 	FORCEINLINE USkeletalMeshComponent* GetItemMesh() const { return ItemMesh; }
 	FORCEINLINE USoundBase* GetPickupSound() const { return PickupSound; }
 	FORCEINLINE USoundBase* GetEquipSound() const { return EquipSound; }
+	FORCEINLINE int32 GetItemCount() const { return ItemCount; }
 };
