@@ -145,10 +145,12 @@ private:
 	bool bAiming = false;
 
 	/** Default camera field of view value */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
 	float CameraDefaultFOV = 0.f;
 
 	/** Field of view value when zoomed in */
-	float CameraZoomedFOV = 45.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	float CameraZoomedFOV = 25.f;
 
 	/** Current field of view this frame */
 	float CameraCurrentFOV = 0.f;
@@ -173,11 +175,11 @@ private:
 
 	/** Turn rate when aiming */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"), meta = (ClampMin = "0.0", ClampMax = "1.0", UIMin = "0.0", UIMax = "1.0"))
-	float AimingTurnRate = 0.2f;
+	float AimingTurnRate = 0.3f;
 
 	/** Look up rate when aiming */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"), meta = (ClampMin = "0.0", ClampMax = "1.0", UIMin = "0.0", UIMax = "1.0"))
-	float AimingLookUpRate = 0.2f;
+	float AimingLookUpRate = 0.3f;
 
 	/** Determines the spread of the crosshair based on multiple factors */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Crosshairs, meta = (AllowPrivateAccess = "true"))
