@@ -31,6 +31,9 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Ammo, meta = (AllowPrivateAccess = "true"))
 	EAmmoType AmmoType = EAmmoType::EAT_9mm;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Ammo, meta = (AllowPrivateAccess = "true"))
+	UTexture2D* AmmoIconTexture;
+
 public:
 	FORCEINLINE EAmmoType GetAmmoType() const { return AmmoType; }
 };
