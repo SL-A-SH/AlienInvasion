@@ -183,11 +183,17 @@ void AShooterCharacter::AimButton(const FInputActionValue& Value)
 	const bool AimValue = Value.Get<bool>();
 	if (AimValue)
 	{
-		bAiming = true;
+		bAimingButtonPressed = true;
+
+		if (CombatState != ECombatState::ECS_Reloading)
+		{
+			Aim();
+		}
 	}
 	else
 	{
-		bAiming = false;
+		bAimingButtonPressed = false;
+		StopAiming();
 	}
 }
 
@@ -258,6 +264,11 @@ void AShooterCharacter::ReloadWeapon()
 	// Do we have ammo of the correct type?
 	if (CarryingAmmo() && !EquippedWeapon->IsClipFull())
 	{
+		if (bAiming)
+		{
+			StopAiming();
+		}
+
 		CombatState = ECombatState::ECS_Reloading;
 
 		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
@@ -394,6 +405,22 @@ bool AShooterCharacter::TraceUnderCrosshairs(FHitResult& OutHitResult, FVector& 
 	}
 
 	return false;
+}
+
+void AShooterCharacter::Aim()
+{
+	bAiming = true;
+	GetCharacterMovement()->MaxWalkSpeed = CrouchMovementSpeed;
+}
+
+void AShooterCharacter::StopAiming()
+{
+	bAiming = false;
+
+	if (!bCrouching)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = BaseMovementSpeed;
+	}
 }
 
 void AShooterCharacter::CameraInterpZoom(float DeltaTime)
@@ -601,6 +628,11 @@ void AShooterCharacter::FinishReloading()
 	CombatState = ECombatState::ECS_Unoccupied;
 
 	if (EquippedWeapon == nullptr) return;
+
+	if (bAimingButtonPressed)
+	{
+		Aim();
+	}
 
 	const auto AmmoType = EquippedWeapon->GetAmmoType();
 
