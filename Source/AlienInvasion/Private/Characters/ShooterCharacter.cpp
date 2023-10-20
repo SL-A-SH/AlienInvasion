@@ -209,11 +209,6 @@ void AShooterCharacter::ActionButton(const FInputActionValue& Value)
 	if (TraceHitItem)
 	{
 		TraceHitItem->StartItemCurve(this);
-
-		if (TraceHitItem->GetPickupSound())
-		{
-			UGameplayStatics::PlaySoundAtLocation(this, TraceHitItem->GetPickupSound(), GetActorLocation());
-		}
 	}
 }
 
