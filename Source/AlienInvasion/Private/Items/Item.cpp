@@ -194,10 +194,10 @@ void AItem::StartItemCurve(AShooterCharacter* Char)
 {
 	ShooterCharacter = Char;
 
-	if (PickupSound)
-	{
-		UGameplayStatics::PlaySoundAtLocation(this, PickupSound, GetActorLocation());
-	}
+	InterpLocIndex = ShooterCharacter->GetInterpLocationIndex();
+	ShooterCharacter->IncrementInterpLocItemCount(InterpLocIndex, 1);
+
+	PlayPickupSound();
 
 	ItemInterpStartLocation = GetActorLocation();
 	bInterping = true;
@@ -217,6 +217,8 @@ void AItem::FinishInterping()
 	bInterping = false;
 	if (ShooterCharacter)
 	{
+		ShooterCharacter->IncrementInterpLocItemCount(InterpLocIndex, -1);
+		PlayEquipSound();
 		ShooterCharacter->GetPickupItem(this);
 	}
 	SetActorScale3D(FVector(1.f));
@@ -236,7 +238,7 @@ void AItem::ItemInterp(float DeltaTime)
 		FVector ItemLocation = ItemInterpStartLocation;
 
 		// Get location in front of the camera
-		const FVector CameraInterpLocation{ ShooterCharacter->GetCameraInterpLocation() };
+		const FVector CameraInterpLocation{ GetInterpLocation() };
 
 		const FVector ItemToCamera{ FVector(0.f, 0.f, (CameraInterpLocation - ItemLocation).Z) };
 
@@ -265,6 +267,46 @@ void AItem::ItemInterp(float DeltaTime)
 			const float ScaleCurveValue = ItemScaleCurve->GetFloatValue(ElapsedTime);
 			SetActorScale3D(FVector(ScaleCurveValue, ScaleCurveValue, ScaleCurveValue));
 		}
+	}
+}
 
+FVector AItem::GetInterpLocation()
+{
+	if (ShooterCharacter == nullptr) return FVector(0.f);
+
+	switch (ItemType)
+	{
+	case EItemType::EIT_Ammo:
+		return ShooterCharacter->GetInterpLocation(InterpLocIndex).SceneComponent->GetComponentLocation();
+		break;
+	case EItemType::EIT_Weapon:
+		return ShooterCharacter->GetInterpLocation(0).SceneComponent->GetComponentLocation();
+		break;
+	}
+
+	return FVector();
+}
+
+void AItem::PlayPickupSound()
+{
+	if (ShooterCharacter && ShooterCharacter->ShouldPlayPickupSound()) 
+	{
+		ShooterCharacter->StartPickupSoundTimer();
+		if (PickupSound)
+		{
+			UGameplayStatics::PlaySoundAtLocation(this, PickupSound, GetActorLocation());
+		}
+	}
+}
+
+void AItem::PlayEquipSound()
+{
+	if (ShooterCharacter && ShooterCharacter->ShouldPlayEquipSound())
+	{
+		ShooterCharacter->StartEquipSoundTimer();
+		if (EquipSound)
+		{
+			UGameplayStatics::PlaySoundAtLocation(this, EquipSound, GetActorLocation());
+		}
 	}
 }
