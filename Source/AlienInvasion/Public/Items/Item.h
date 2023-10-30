@@ -45,6 +45,7 @@ class USphereComponent;
 class UCurveFloat;
 class AShooterCharacter;
 class PickupSound;
+class UCurveVector;
 
 UCLASS()
 class ALIENINVASION_API AItem : public AActor
@@ -58,6 +59,8 @@ public:
 	void StartItemCurve(AShooterCharacter* Char);
 	virtual void EnableCustomDepth();
 	virtual void DisableCustomDepth();
+
+	void DisableGlowMaterial();
 
 protected:
 	virtual void BeginPlay() override;
@@ -93,7 +96,10 @@ protected:
 	virtual void OnConstruction(const FTransform& Transform) override;
 
 	void EnableGlowMaterial();
-	void DisableGlowMaterial();
+
+	void StartPulseTimer();
+	void ResetPulseTimer();
+	void UpdatePulse();
 
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
@@ -163,6 +169,27 @@ private:
 	UMaterialInstance* MaterialInstance;
 
 	bool bCanChangeCustomDepth = true;
+
+	/** Curve to drive the dynamic material parameters */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	UCurveVector* PulseCurve;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	UCurveVector* InterpPulseCurve;
+
+	FTimerHandle PulseTimer;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	float PulseCurveTime = 5.f;
+
+	UPROPERTY(VisibleAnywhere, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	float GlowAmount = 150.f;
+
+	UPROPERTY(VisibleAnywhere, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	float FresnelExponent = 3.f;
+
+	UPROPERTY(VisibleAnywhere, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	float FresnelReflectFraction = 4.f;
 
 public:
 	FORCEINLINE UWidgetComponent* GetPickupWidget() const { return PickupWidget; }

@@ -8,6 +8,7 @@
 #include "Camera/CameraComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Characters/ShooterCharacter.h"
+#include "Curves/CurveVector.h"
 
 AItem::AItem()
 {
@@ -36,6 +37,9 @@ void AItem::Tick(float DeltaTime)
 	{
 		ItemInterp(DeltaTime);
 	}
+
+	// Get curve values from PulseCurve and set dynamic material parameters
+	UpdatePulse();
 }
 
 void AItem::BeginPlay()
@@ -56,6 +60,8 @@ void AItem::BeginPlay()
 	SetItemProperties(ItemState);
 
 	InitializeCustomDepth();
+
+	StartPulseTimer();
 }
 
 void AItem::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -186,6 +192,19 @@ void AItem::SetItemProperties(EItemState State)
 
 }
 
+void AItem::StartPulseTimer()
+{
+	if (ItemState == EItemState::EIS_Pickup)
+	{
+		GetWorldTimerManager().SetTimer(PulseTimer, this, &AItem::ResetPulseTimer, PulseCurveTime);
+	}
+}
+
+void AItem::ResetPulseTimer()
+{
+	StartPulseTimer();
+}
+
 void AItem::SetItemState(EItemState State)
 {
 	ItemState = State;
@@ -205,6 +224,7 @@ void AItem::StartItemCurve(AShooterCharacter* Char)
 	bInterping = true;
 	SetItemState(EItemState::EIS_EquipInterping);
 
+	GetWorldTimerManager().ClearTimer(PulseTimer);
 	GetWorldTimerManager().SetTimer(ItemInterpTimer, this, &AItem::FinishInterping, ZCurveTime);
 
 	const float CameraRotationYaw = ShooterCharacter->GetFollowCamera()->GetComponentRotation().Yaw;
@@ -224,6 +244,7 @@ void AItem::FinishInterping()
 		ShooterCharacter->IncrementInterpLocItemCount(InterpLocIndex, -1);
 		PlayEquipSound();
 		ShooterCharacter->GetPickupItem(this);
+		SetItemState(EItemState::EIS_PickedUp);
 	}
 	SetActorScale3D(FVector(1.f));
 
@@ -355,6 +376,37 @@ void AItem::EnableGlowMaterial()
 	if (DynamicMaterialInstance)
 	{
 		DynamicMaterialInstance->SetScalarParameterValue(TEXT("GlowBlendAlpha"), 0);
+	}
+}
+
+void AItem::UpdatePulse()
+{
+	float ElapsedTime;
+	FVector CurveValue;
+
+	switch (ItemState)
+	{
+	case EItemState::EIS_Pickup:
+		if (PulseCurve)
+		{
+			ElapsedTime = GetWorldTimerManager().GetTimerElapsed(PulseTimer);
+			CurveValue = PulseCurve->GetVectorValue(ElapsedTime);
+		}
+		break;
+	case EItemState::EIS_EquipInterping:
+		if (InterpPulseCurve)
+		{
+			ElapsedTime = GetWorldTimerManager().GetTimerElapsed(ItemInterpTimer);
+			CurveValue = InterpPulseCurve->GetVectorValue(ElapsedTime);
+		}
+		break;
+	}
+
+	if (DynamicMaterialInstance)
+	{
+		DynamicMaterialInstance->SetScalarParameterValue(TEXT("GlowAmount"), CurveValue.X * GlowAmount);
+		DynamicMaterialInstance->SetScalarParameterValue(TEXT("FresnelExponent"), CurveValue.Y * FresnelExponent);
+		DynamicMaterialInstance->SetScalarParameterValue(TEXT("FresnelReflectFraction"), CurveValue.Z * FresnelReflectFraction);
 	}
 }
 
