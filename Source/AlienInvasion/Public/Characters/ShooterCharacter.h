@@ -25,6 +25,7 @@ enum class ECombatState : uint8
 	ECS_Unoccupied UMETA(DisplayName = "Unoccupied"),
 	ECS_Firing UMETA(DisplayName = "Firing"),
 	ECS_Reloading UMETA(DisplayName = "Reloading"),
+	ECS_Equipping UMETA(DisplayName = "Equipping"),
 
 	ECS_MAX UMETA(DisplayName = "DefaultMAX")
 };
@@ -40,6 +41,8 @@ struct FInterpLocation
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	int32 ItemCount;
 };
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FEquipItemDelegate, int32, CurrentSlotIndex, int32, NewSlotIndex);
 
 UCLASS()
 class ALIENINVASION_API AShooterCharacter : public ACharacter
@@ -99,6 +102,24 @@ protected:
 	UPROPERTY(EditAnywhere, Category = Input)
 	UInputAction* CrouchAction;
 
+	UPROPERTY(EditAnywhere, Category = Input)
+	UInputAction* FKeyAction;
+
+	UPROPERTY(EditAnywhere, Category = Input)
+	UInputAction* Key1Action;
+
+	UPROPERTY(EditAnywhere, Category = Input)
+	UInputAction* Key2Action;
+
+	UPROPERTY(EditAnywhere, Category = Input)
+	UInputAction* Key3Action;
+
+	UPROPERTY(EditAnywhere, Category = Input)
+	UInputAction* Key4Action;
+
+	UPROPERTY(EditAnywhere, Category = Input)
+	UInputAction* Key5Action;
+
 	/** Input callbacks */
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
@@ -108,6 +129,12 @@ protected:
 	void ActionButton(const FInputActionValue& Value);
 	void ReloadButtonPressed(const FInputActionValue& Value);
 	void Crouch();
+	void FKeyButtonPressed(const FInputActionValue& Value);
+	void Key1ButtonPressed(const FInputActionValue& Value);
+	void Key2ButtonPressed(const FInputActionValue& Value);
+	void Key3ButtonPressed(const FInputActionValue& Value);
+	void Key4ButtonPressed(const FInputActionValue& Value);
+	void Key5ButtonPressed(const FInputActionValue& Value);
 
 	void FireWeapon();
 	void ReloadWeapon();
@@ -122,6 +149,7 @@ protected:
 	void SetLookRates();
 	void CalculateCrosshairSpread(float DeltaTime);
 	void TraceForItems();
+	void ExchangeInventoryItems(int32 CurrentItemIndex, int32 NewItemIndex);
 
 	AWeapon* SpawnDefaultWeapon();
 	void EquipWeapon(AWeapon* WeaponToEquip);
@@ -145,6 +173,9 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 	void ReleaseMagazine();
+
+	UFUNCTION(BlueprintCallable)
+	void FinishEquipping();
 
 	void InterpCapsuleHalfHeight(float DeltaTime);
 
@@ -365,12 +396,19 @@ private:
 
 	const int32 INVENTORY_CAPACITY = 6;
 
+	/** Delegate for sending slot information to InventoryBar when equipping */
+	UPROPERTY(BlueprintAssignable, Category = Delegates, meta = (AllowPrivateAccess = "true"))
+	FEquipItemDelegate EquipItemDelegate;
+
 	/** Animation Montages */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Movement, meta = (AllowPrivateAccess = "true"))
 	UAnimMontage* HipFireMontage;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
 	UAnimMontage* ReloadMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	UAnimMontage* EquipMontage;
 
 public:
 	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }

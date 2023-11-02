@@ -91,6 +91,9 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Crouching", meta = (AllowPrivateAccess = "true"))
 	bool bCrouching = false;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Equipping", meta = (AllowPrivateAccess = "true"))
+	bool bEquipping = false;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Turn In Place", meta = (AllowPrivateAccess = "true"))
 	bool bTurningInPlace = false;
 

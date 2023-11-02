@@ -101,6 +101,12 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 		EnhancedInputComponent->BindAction(ActionButtonAction, ETriggerEvent::Triggered, this, &AShooterCharacter::ActionButton);
 		EnhancedInputComponent->BindAction(ReloadButtonAction, ETriggerEvent::Triggered, this, &AShooterCharacter::ReloadButtonPressed);
 		EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Triggered, this, &AShooterCharacter::Crouch);
+		EnhancedInputComponent->BindAction(FKeyAction, ETriggerEvent::Triggered, this, &AShooterCharacter::FKeyButtonPressed);
+		EnhancedInputComponent->BindAction(Key1Action, ETriggerEvent::Triggered, this, &AShooterCharacter::Key1ButtonPressed);
+		EnhancedInputComponent->BindAction(Key2Action, ETriggerEvent::Triggered, this, &AShooterCharacter::Key2ButtonPressed);
+		EnhancedInputComponent->BindAction(Key3Action, ETriggerEvent::Triggered, this, &AShooterCharacter::Key3ButtonPressed);
+		EnhancedInputComponent->BindAction(Key4Action, ETriggerEvent::Triggered, this, &AShooterCharacter::Key4ButtonPressed);
+		EnhancedInputComponent->BindAction(Key5Action, ETriggerEvent::Triggered, this, &AShooterCharacter::Key5ButtonPressed);
 	}
 }
 
@@ -125,8 +131,10 @@ void AShooterCharacter::BeginPlay()
 	// Spawn the default weapon and equip it
 	EquipWeapon(SpawnDefaultWeapon());
 	Inventory.Add(EquippedWeapon);
+	EquippedWeapon->SetSlotIndex(0);
 	EquippedWeapon->DisableCustomDepth();
 	EquippedWeapon->DisableGlowMaterial();
+	EquippedWeapon->SetCharacter(this);
 
 	InitializeAmmoMap();
 
@@ -142,7 +150,9 @@ void AShooterCharacter::GetPickupItem(AItem* Item)
 	{
 		if (Inventory.Num() < INVENTORY_CAPACITY)
 		{
+			Weapon->SetSlotIndex(Inventory.Num());
 			Inventory.Add(Weapon);
+			Weapon->SetItemState(EItemState::EIS_PickedUp);
 		}
 		else
 		{
@@ -234,9 +244,12 @@ void AShooterCharacter::AimButton(const FInputActionValue& Value)
 
 void AShooterCharacter::ActionButton(const FInputActionValue& Value)
 {
+	if (CombatState != ECombatState::ECS_Unoccupied) return;
+
 	if (TraceHitItem)
 	{
-		TraceHitItem->StartItemCurve(this);
+		TraceHitItem->StartItemCurve(this, true);
+		TraceHitItem = nullptr;
 	}
 }
 
@@ -262,6 +275,42 @@ void AShooterCharacter::Crouch()
 		GetCharacterMovement()->MaxWalkSpeed = BaseMovementSpeed;
 		GetCharacterMovement()->GroundFriction = BaseGroundFriction;
 	}
+}
+
+void AShooterCharacter::FKeyButtonPressed(const FInputActionValue& Value)
+{
+	if (EquippedWeapon->GetSlotIndex() == 0) return;
+	ExchangeInventoryItems(EquippedWeapon->GetSlotIndex(), 0);
+}
+
+void AShooterCharacter::Key1ButtonPressed(const FInputActionValue& Value)
+{
+	if (EquippedWeapon->GetSlotIndex() == 1) return;
+	ExchangeInventoryItems(EquippedWeapon->GetSlotIndex(), 1);
+}
+
+void AShooterCharacter::Key2ButtonPressed(const FInputActionValue& Value)
+{
+	if (EquippedWeapon->GetSlotIndex() == 2) return;
+	ExchangeInventoryItems(EquippedWeapon->GetSlotIndex(), 2);
+}
+
+void AShooterCharacter::Key3ButtonPressed(const FInputActionValue& Value)
+{
+	if (EquippedWeapon->GetSlotIndex() == 3) return;
+	ExchangeInventoryItems(EquippedWeapon->GetSlotIndex(), 3);
+}
+
+void AShooterCharacter::Key4ButtonPressed(const FInputActionValue& Value)
+{
+	if (EquippedWeapon->GetSlotIndex() == 4) return;
+	ExchangeInventoryItems(EquippedWeapon->GetSlotIndex(), 4);
+}
+
+void AShooterCharacter::Key5ButtonPressed(const FInputActionValue& Value)
+{
+	if (EquippedWeapon->GetSlotIndex() == 5) return;
+	ExchangeInventoryItems(EquippedWeapon->GetSlotIndex(), 5);
 }
 
 void AShooterCharacter::FireWeapon()
@@ -536,6 +585,12 @@ void AShooterCharacter::TraceForItems()
 		if (ItemTraceResult.bBlockingHit)
 		{
 			TraceHitItem = Cast<AItem>(ItemTraceResult.GetActor());
+
+			if (TraceHitItem && TraceHitItem->GetItemState() == EItemState::EIS_EquipInterping)
+			{
+				TraceHitItem = nullptr;
+			}
+
 			/*if (TraceHitItem && TraceHitItem->GetPickupWidget() && TraceHitItem->GetDistanceTo(this) < 400.f)*/
 			if (TraceHitItem && TraceHitItem->GetPickupWidget())
 			{
@@ -569,6 +624,29 @@ void AShooterCharacter::TraceForItems()
 	}
 }
 
+void AShooterCharacter::ExchangeInventoryItems(int32 CurrentItemIndex, int32 NewItemIndex)
+{
+	if ((CurrentItemIndex == NewItemIndex) || (NewItemIndex >= Inventory.Num()) || (CombatState != ECombatState::ECS_Unoccupied)) return;
+
+	auto OldEquippedWeapon = EquippedWeapon;
+	auto NewWeapon = Cast<AWeapon>(Inventory[NewItemIndex]);
+	EquipWeapon(NewWeapon);
+
+	OldEquippedWeapon->SetItemState(EItemState::EIS_PickedUp);
+	NewWeapon->SetItemState(EItemState::EIS_Equipped);
+
+	CombatState = ECombatState::ECS_Equipping;
+
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && EquipMontage)
+	{
+		AnimInstance->Montage_Play(EquipMontage);
+		AnimInstance->Montage_JumpToSection(FName("Equip"));
+	}
+
+	NewWeapon->PlayEquipSound(true);
+}
+
 AWeapon* AShooterCharacter::SpawnDefaultWeapon()
 {
 	if (DefaultWeaponClass)
@@ -592,10 +670,18 @@ void AShooterCharacter::EquipWeapon(AWeapon* WeaponToEquip)
 			HandSocket->AttachActor(WeaponToEquip, GetMesh());
 		}
 
+		if (EquippedWeapon == nullptr)
+		{
+			EquipItemDelegate.Broadcast(-1, WeaponToEquip->GetSlotIndex());
+		}
+		else
+		{
+			EquipItemDelegate.Broadcast(EquippedWeapon->GetSlotIndex(), WeaponToEquip->GetSlotIndex());
+		}
+
 		EquippedWeapon = WeaponToEquip;
 		EquippedWeapon->SetItemState(EItemState::EIS_Equipped);
 	}
-	
 }
 
 void AShooterCharacter::DropWeapon()
@@ -612,6 +698,13 @@ void AShooterCharacter::DropWeapon()
 
 void AShooterCharacter::SwapWeapon(AWeapon* WeaponToSwap)
 {
+
+	if (Inventory.Num() - 1 >= EquippedWeapon->GetSlotIndex())
+	{
+		Inventory[EquippedWeapon->GetSlotIndex()] = WeaponToSwap;
+		WeaponToSwap->SetSlotIndex(EquippedWeapon->GetSlotIndex());
+	}
+
 	DropWeapon();
 	EquipWeapon(WeaponToSwap);
 	TraceHitItem = nullptr;
@@ -802,6 +895,11 @@ void AShooterCharacter::GrabMagazine()
 void AShooterCharacter::ReleaseMagazine()
 {
 	EquippedWeapon->SetMovingClip(false);
+}
+
+void AShooterCharacter::FinishEquipping()
+{
+	CombatState = ECombatState::ECS_Unoccupied;
 }
 
 void AShooterCharacter::InterpCapsuleHalfHeight(float DeltaTime)

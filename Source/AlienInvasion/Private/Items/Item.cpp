@@ -159,6 +159,19 @@ void AItem::SetItemProperties(EItemState State)
 		CollisionBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		break;
 	case EItemState::EIS_PickedUp:
+		PickupWidget->SetVisibility(false);
+
+		ItemMesh->SetSimulatePhysics(false);
+		ItemMesh->SetEnableGravity(false);
+		ItemMesh->SetVisibility(false);
+		ItemMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+		ItemMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+		ItemSphere->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+		ItemSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+		CollisionBox->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+		CollisionBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		break;
 	case EItemState::EIS_Equipped:
 		PickupWidget->SetVisibility(false);
@@ -178,6 +191,7 @@ void AItem::SetItemProperties(EItemState State)
 	case EItemState::EIS_Falling:
 		ItemMesh->SetSimulatePhysics(true);
 		ItemMesh->SetEnableGravity(true);
+		ItemMesh->SetVisibility(true);
 		ItemMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		ItemMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 		ItemMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);
@@ -211,14 +225,14 @@ void AItem::SetItemState(EItemState State)
 	SetItemProperties(State);
 }
 
-void AItem::StartItemCurve(AShooterCharacter* Char)
+void AItem::StartItemCurve(AShooterCharacter* Char, bool bForcePlaySound)
 {
 	ShooterCharacter = Char;
 
 	InterpLocIndex = ShooterCharacter->GetInterpLocationIndex();
 	ShooterCharacter->IncrementInterpLocItemCount(InterpLocIndex, 1);
 
-	PlayPickupSound();
+	PlayPickupSound(bForcePlaySound);
 
 	ItemInterpStartLocation = GetActorLocation();
 	bInterping = true;
@@ -244,7 +258,6 @@ void AItem::FinishInterping()
 		ShooterCharacter->IncrementInterpLocItemCount(InterpLocIndex, -1);
 		PlayEquipSound();
 		ShooterCharacter->GetPickupItem(this);
-		SetItemState(EItemState::EIS_PickedUp);
 	}
 	SetActorScale3D(FVector(1.f));
 
@@ -316,26 +329,46 @@ FVector AItem::GetInterpLocation()
 	return FVector();
 }
 
-void AItem::PlayPickupSound()
+void AItem::PlayPickupSound(bool bForcePlaySound)
 {
-	if (ShooterCharacter && ShooterCharacter->ShouldPlayPickupSound()) 
+	if (ShooterCharacter) 
 	{
-		ShooterCharacter->StartPickupSoundTimer();
-		if (PickupSound)
+		if (bForcePlaySound)
 		{
-			UGameplayStatics::PlaySoundAtLocation(this, PickupSound, GetActorLocation());
+			if (PickupSound)
+			{
+				UGameplayStatics::PlaySoundAtLocation(this, PickupSound, GetActorLocation());
+			}
+		}
+		else if (ShooterCharacter->ShouldPlayPickupSound())
+		{
+			ShooterCharacter->StartPickupSoundTimer();
+			if (PickupSound)
+			{
+				UGameplayStatics::PlaySoundAtLocation(this, PickupSound, GetActorLocation());
+			}
 		}
 	}
 }
 
-void AItem::PlayEquipSound()
+void AItem::PlayEquipSound(bool bForcePlaySound)
 {
-	if (ShooterCharacter && ShooterCharacter->ShouldPlayEquipSound())
+	if (ShooterCharacter)
 	{
-		ShooterCharacter->StartEquipSoundTimer();
-		if (EquipSound)
+		if (bForcePlaySound)
 		{
-			UGameplayStatics::PlaySoundAtLocation(this, EquipSound, GetActorLocation());
+			if (EquipSound)
+			{
+				UGameplayStatics::PlaySoundAtLocation(this, EquipSound, GetActorLocation());
+			}
+		}
+		else if (ShooterCharacter->ShouldPlayEquipSound())
+		{
+			ShooterCharacter->StartEquipSoundTimer();
+			if (EquipSound)
+			{
+				UGameplayStatics::PlaySoundAtLocation(this, EquipSound, GetActorLocation());
+			}
 		}
 	}
 }

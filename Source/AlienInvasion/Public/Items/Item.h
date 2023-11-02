@@ -56,11 +56,12 @@ public:
 	AItem();
 	virtual void Tick(float DeltaTime) override;
 
-	void StartItemCurve(AShooterCharacter* Char);
+	void StartItemCurve(AShooterCharacter* Char, bool bForcePlaySound = false);
 	virtual void EnableCustomDepth();
 	virtual void DisableCustomDepth();
 
 	void DisableGlowMaterial();
+	void PlayEquipSound(bool bForcePlaySound = false);
 
 protected:
 	virtual void BeginPlay() override;
@@ -88,8 +89,7 @@ protected:
 	void FinishInterping();
 	void ItemInterp(float DeltaTime);
 	FVector GetInterpLocation();
-	void PlayPickupSound();
-	void PlayEquipSound();
+	void PlayPickupSound(bool bForcePlaySound = false);
 
 	virtual void InitializeCustomDepth();
 
@@ -203,6 +203,9 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Inventory", meta = (AllowPrivateAccess = "true"))
 	UTexture2D* AmmoIcon;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inventory", meta = (AllowPrivateAccess = "true"))
+	int32 SlotIndex = 0;
+
 public:
 	FORCEINLINE UWidgetComponent* GetPickupWidget() const { return PickupWidget; }
 	FORCEINLINE USphereComponent* GetItemSphere() const { return ItemSphere; }
@@ -213,4 +216,7 @@ public:
 	FORCEINLINE USoundBase* GetPickupSound() const { return PickupSound; }
 	FORCEINLINE USoundBase* GetEquipSound() const { return EquipSound; }
 	FORCEINLINE int32 GetItemCount() const { return ItemCount; }
+	FORCEINLINE int32 GetSlotIndex() const { return SlotIndex; }
+	FORCEINLINE void SetSlotIndex(int32 Index) { SlotIndex = Index; }
+	FORCEINLINE void SetCharacter(AShooterCharacter* Char) { ShooterCharacter = Char; }
 };
