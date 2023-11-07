@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimInstance.h"
+#include "Items/Weapons/WeaponType.h"
 #include "ShooterAnimInstance.generated.h"
 
 class AShooterCharacter;
@@ -99,4 +100,10 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
 	float RecoilWeight = 1.f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	EWeaponType EquippedWeaponType = EWeaponType::EWT_MAX;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	bool bShouldUseFABRIK = false;
 };
