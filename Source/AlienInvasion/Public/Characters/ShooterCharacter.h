@@ -163,8 +163,10 @@ protected:
 	bool WeaponHasAmmo();
 	bool CarryingAmmo();
 	void PickupAmmo(AAmmo* Ammo);
+	void StartFireTimer();
 	void StartCrosshairBulletFire();
 	void InitializeInterpLocations();
+
 
 	UFUNCTION()
 	void FinishCrosshairBulletFire();
@@ -181,6 +183,9 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void FinishEquipping();
 
+	UFUNCTION()
+	void AutoFireReset();
+
 	void InterpCapsuleHalfHeight(float DeltaTime);
 
 private:
@@ -189,14 +194,6 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* FollowCamera;
-
-	/** Randomized gunshot sound */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
-	USoundBase* FireSound;
-
-	/** Flash spawned at BarrelSocket */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
-	UParticleSystem* MuzzleFlash;
 
 	/** Particles spawned upon bullet impact */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
@@ -267,6 +264,8 @@ private:
 
 	/** Left mouse button or right console trigger pressed */
 	bool bFireButtonPressed;
+
+	FTimerHandle AutoFireTimer;
 
 	float ShootTimeDuration = 0.05f;
 	bool bFiringBullet = false;

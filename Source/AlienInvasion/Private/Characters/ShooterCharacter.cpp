@@ -211,6 +211,7 @@ void AShooterCharacter::Jump()
 void AShooterCharacter::FireButtonPressed(const FInputActionValue& Value)
 {
 	const bool FireValue = Value.Get<bool>();
+
 	if (FireValue)
 	{
 		bFireButtonPressed = true;
@@ -219,7 +220,6 @@ void AShooterCharacter::FireButtonPressed(const FInputActionValue& Value)
 	else
 	{
 		bFireButtonPressed = false;
-		CombatState = ECombatState::ECS_Unoccupied;
 	}
 }
 
@@ -320,13 +320,13 @@ void AShooterCharacter::FireWeapon()
 
 	if (WeaponHasAmmo())
 	{
-		CombatState = ECombatState::ECS_Firing;
 		PlayFireSound();
 		SendBullet();
 		PlayGunfireMontage();
-		StartCrosshairBulletFire();
 		EquippedWeapon->DecrementAmmo();
-		CombatState = ECombatState::ECS_Unoccupied;
+
+		StartFireTimer();
+		StartCrosshairBulletFire();
 
 		if (EquippedWeapon->GetAmmo() == 0) 
 		{
@@ -361,9 +361,9 @@ void AShooterCharacter::ReloadWeapon()
 
 void AShooterCharacter::PlayFireSound()
 {
-	if (FireSound)
+	if (EquippedWeapon->GetFireSound())
 	{
-		UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
+		UGameplayStatics::PlaySoundAtLocation(this, EquippedWeapon->GetFireSound(), GetActorLocation());
 	}
 }
 
@@ -375,9 +375,9 @@ void AShooterCharacter::SendBullet()
 	{
 		const FTransform SocketTransform = BarrelSocket->GetSocketTransform(EquippedWeapon->GetItemMesh());
 
-		if (MuzzleFlash)
+		if (EquippedWeapon->GetMuzzleFlash())
 		{
-			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), MuzzleFlash, SocketTransform);
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), EquippedWeapon->GetMuzzleFlash(), SocketTransform);
 		}
 
 		FVector BeamEnd;
@@ -819,6 +819,17 @@ void AShooterCharacter::PickupAmmo(AAmmo* Ammo)
 	Ammo->Destroy();
 }
 
+void AShooterCharacter::StartFireTimer()
+{
+	CombatState = ECombatState::ECS_Firing;
+
+	GetWorldTimerManager().SetTimer(
+		AutoFireTimer,
+		this,
+		&AShooterCharacter::AutoFireReset,
+		EquippedWeapon->GetAutoFireRate());
+}
+
 void AShooterCharacter::StartCrosshairBulletFire()
 {
 	bFiringBullet = true;
@@ -957,6 +968,25 @@ void AShooterCharacter::ReleaseMagazine()
 void AShooterCharacter::FinishEquipping()
 {
 	CombatState = ECombatState::ECS_Unoccupied;
+}
+
+void AShooterCharacter::AutoFireReset()
+{
+	CombatState = ECombatState::ECS_Unoccupied;
+
+	if (EquippedWeapon == nullptr) return;
+	if (WeaponHasAmmo())
+	{
+		if (bFireButtonPressed)
+		{
+			FireWeapon();
+		}
+	}
+	else
+	{
+		// Reload Weapon
+		ReloadWeapon();
+	}
 }
 
 void AShooterCharacter::InterpCapsuleHalfHeight(float DeltaTime)
