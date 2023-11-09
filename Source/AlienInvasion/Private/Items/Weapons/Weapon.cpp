@@ -17,6 +17,8 @@ void AWeapon::Tick(float DeltaTime)
 		const FRotator MeshRotation{ 0.f, GetItemMesh()->GetComponentRotation().Yaw, 0.f };
 		GetItemMesh()->SetWorldRotation(MeshRotation, false, nullptr, ETeleportType::TeleportPhysics);
 	}
+
+	UpdateSlideDisplacement();
 }
 
 void AWeapon::ThrowWeapon()
@@ -65,11 +67,10 @@ bool AWeapon::IsClipFull()
 	return Ammo >= MagazineCapacity;
 }
 
-void AWeapon::StopFalling()
+void AWeapon::StartSlideTimer()
 {
-	bFalling = false;
-	SetItemState(EItemState::EIS_Pickup);
-	StartPulseTimer();
+	bMovingSlide = true;
+	GetWorldTimerManager().SetTimer(SlideTimer, this, &AWeapon::FinishMovingSlide, SlideDisplacementTime);
 }
 
 void AWeapon::BeginPlay()
@@ -145,5 +146,30 @@ void AWeapon::OnConstruction(const FTransform& Transform)
 
 			EnableGlowMaterial();
 		}
+	}
+}
+
+void AWeapon::StopFalling()
+{
+	bFalling = false;
+	SetItemState(EItemState::EIS_Pickup);
+	StartPulseTimer();
+}
+
+void AWeapon::FinishMovingSlide()
+{
+	bMovingSlide = false;
+}
+
+void AWeapon::UpdateSlideDisplacement()
+{
+	if (!bMovingSlide) return;
+
+	if (SlideDisplacementCurve)
+	{
+		const float ElapsedTime = GetWorldTimerManager().GetTimerElapsed(SlideTimer);
+		const float CurveValue = SlideDisplacementCurve->GetFloatValue(ElapsedTime);
+		SlideDisplacement = CurveValue * MaxSlideDisplacement;
+		RecoilRotation = CurveValue * MaxRecoilRotation;
 	}
 }

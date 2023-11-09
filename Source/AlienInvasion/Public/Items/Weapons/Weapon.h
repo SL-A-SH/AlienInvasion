@@ -102,13 +102,15 @@ public:
 	void DecrementAmmo();
 	void ReloadAmmo(int32 Amount);
 	bool IsClipFull();
+	void StartSlideTimer();
 
 protected:
-	void StopFalling();
-
 	virtual void BeginPlay() override;
-
 	virtual void OnConstruction(const FTransform& Transform) override;
+
+	void StopFalling();
+	void FinishMovingSlide();
+	void UpdateSlideDisplacement();
 
 private:
 	FTimerHandle ThrowWeaponTimer;
@@ -170,6 +172,37 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "DataTable", meta = (AllowPrivateAccess = "true"))
 	FName BoneToHide;
+
+	/** Amount that the slide is pushed back during pistol fire */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pistol", meta = (AllowPrivateAccess = "true"))
+	float SlideDisplacement = 0.f;
+
+	/** Curve for the slide displacement */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Pistol", meta = (AllowPrivateAccess = "true"))
+	UCurveFloat* SlideDisplacementCurve;
+
+	/** Timer handle for updating SlideDisplacement */
+	FTimerHandle SlideTimer;
+
+	/** Time for displacing the slide during pistol fire */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Pistol", meta = (AllowPrivateAccess = "true"))
+	float SlideDisplacementTime = 0.2f;
+
+	/** True when moving the pistol slide */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pistol", meta = (AllowPrivateAccess = "true"))
+	bool bMovingSlide = false;
+
+	/** Max distance for the slide on the pistol */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Pistol", meta = (AllowPrivateAccess = "true"))
+	float MaxSlideDisplacement = 4.f;
+
+	/** Max rotation for pistol recoil */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Pistol", meta = (AllowPrivateAccess = "true"))
+	float MaxRecoilRotation = 12.f;
+
+	/** Amount that the pistol will rotate during pistol fire */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pistol", meta = (AllowPrivateAccess = "true"))
+	float RecoilRotation = 0.f;
 
 public:
 	FORCEINLINE int32 GetAmmo() const { return Ammo; }

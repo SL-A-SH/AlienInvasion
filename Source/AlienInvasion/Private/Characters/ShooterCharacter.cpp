@@ -328,6 +328,11 @@ void AShooterCharacter::FireWeapon()
 		StartFireTimer();
 		StartCrosshairBulletFire();
 
+		if (EquippedWeapon->GetWeaponType() == EWeaponType::EWT_Pistol)
+		{
+			EquippedWeapon->StartSlideTimer();
+		}
+
 		if (EquippedWeapon->GetAmmo() == 0) 
 		{
 			ReloadWeapon();
@@ -823,11 +828,7 @@ void AShooterCharacter::StartFireTimer()
 {
 	CombatState = ECombatState::ECS_Firing;
 
-	GetWorldTimerManager().SetTimer(
-		AutoFireTimer,
-		this,
-		&AShooterCharacter::AutoFireReset,
-		EquippedWeapon->GetAutoFireRate());
+	GetWorldTimerManager().SetTimer(AutoFireTimer, this, AShooterCharacter::AutoFireReset, EquippedWeapon->GetAutoFireRate());
 }
 
 void AShooterCharacter::StartCrosshairBulletFire()
@@ -1039,15 +1040,6 @@ void AShooterCharacter::UpdateOverlappedItemCount(int8 Amount)
 		bShouldTraceForItems = true;
 	}
 }
-
-//FVector AShooterCharacter::GetCameraInterpLocation()
-//{
-//	const FVector CameraWorldLocation = FollowCamera->GetComponentLocation();
-//	const FVector CameraForward = FollowCamera->GetForwardVector();
-//	const FVector CameraUp = FollowCamera->GetUpVector();
-//
-//	return CameraWorldLocation + CameraForward * CameraInterpDistance + CameraUp * CameraInterpElevation;
-//}
 
 FInterpLocation AShooterCharacter::GetInterpLocation(int32 Index)
 {
