@@ -14,9 +14,11 @@
 #include "EnhancedInputComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/SkeletalMeshSocket.h"
+#include "PhysicalMaterials/PhysicalMaterial.h"
 #include "Items/Item.h"
 #include "Items/Weapons/Weapon.h"
 #include "Items/Ammo/Ammo.h"
+#include "AlienInvasion/AlienInvasion.h"
 
 AShooterCharacter::AShooterCharacter()
 {
@@ -1003,6 +1005,18 @@ void AShooterCharacter::AutoFireReset()
 		// Reload Weapon
 		ReloadWeapon();
 	}
+}
+
+EPhysicalSurface AShooterCharacter::GetSurfaceType()
+{
+	FHitResult HitResult;
+	const FVector Start{ GetActorLocation() };
+	const FVector End{ Start + FVector(0.f, 0.f, -400.f) };
+	FCollisionQueryParams QueryParams;
+	QueryParams.bReturnPhysicalMaterial = true;
+
+	GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECollisionChannel::ECC_Visibility, QueryParams);
+	return UPhysicalMaterial::DetermineSurfaceType(HitResult.PhysMaterial.Get());
 }
 
 void AShooterCharacter::InterpCapsuleHalfHeight(float DeltaTime)

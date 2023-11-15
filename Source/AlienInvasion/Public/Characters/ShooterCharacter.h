@@ -166,7 +166,10 @@ protected:
 	void StartFireTimer();
 	void StartCrosshairBulletFire();
 	void InitializeInterpLocations();
+	void InterpCapsuleHalfHeight(float DeltaTime);
 
+	UFUNCTION(BlueprintCallable)
+	EPhysicalSurface GetSurfaceType();
 
 	UFUNCTION()
 	void FinishCrosshairBulletFire();
@@ -185,8 +188,6 @@ protected:
 
 	UFUNCTION()
 	void AutoFireReset();
-
-	void InterpCapsuleHalfHeight(float DeltaTime);
 
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
