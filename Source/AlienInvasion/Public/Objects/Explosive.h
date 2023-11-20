@@ -3,28 +3,25 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Character.h"
+#include "GameFramework/Actor.h"
 #include "Interfaces/BulletHitInterface.h"
-#include "Enemy.generated.h"
-
-class UParticleSystem;
-class USoundBase;
+#include "Explosive.generated.h"
 
 UCLASS()
-class ALIENINVASION_API AEnemy : public ACharacter, public IBulletHitInterface
+class ALIENINVASION_API AExplosive : public AActor, public IBulletHitInterface
 {
 	GENERATED_BODY()
-
-public:
-	// Sets default values for this character's properties
-	AEnemy();
+	
+public:	
+	// Sets default values for this actor's properties
+	AExplosive();
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat)
-	UParticleSystem* ImpactParticles;
+	UParticleSystem* ExplodeParticles;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat)
 	USoundBase* ImpactSound;
@@ -32,9 +29,6 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	virtual void BulletHit_Implementation(FHitResult HitResult) override;
 };

@@ -143,7 +143,7 @@ protected:
 	void PlayFireSound();
 	void SendBullet();
 	void PlayGunfireMontage();
-	bool GetBeamEndLocation(const FVector& MuzzleSocketLocation, FVector& OutBeamLocation);
+	bool GetBeamEndLocation(const FVector& MuzzleSocketLocation, FHitResult& OutHitResult);
 	bool TraceUnderCrosshairs(FHitResult& OutHitResult, FVector& OutHitLocation);
 	void Aim();
 	void StopAiming();
