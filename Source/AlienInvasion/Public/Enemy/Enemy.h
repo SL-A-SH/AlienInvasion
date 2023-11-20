@@ -29,6 +29,12 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat)
 	USoundBase* ImpactSound;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat)
+	float Health = 100.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Combat)
+	float MaxHealth = 100.f;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -37,4 +43,5 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	virtual void BulletHit_Implementation(FHitResult HitResult) override;
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 };

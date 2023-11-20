@@ -20,6 +20,7 @@
 #include "Items/Ammo/Ammo.h"
 #include "AlienInvasion/AlienInvasion.h"
 #include "Interfaces/BulletHitInterface.h"
+#include "Enemy/Enemy.h"
 
 AShooterCharacter::AShooterCharacter()
 {
@@ -402,13 +403,19 @@ void AShooterCharacter::SendBullet()
 				{
 					BulletHitInterface->BulletHit_Implementation(BeamHitResult);
 				}
-				else 
+
+				AEnemy* HitEnemy = Cast<AEnemy>(BeamHitResult.GetActor());
+				if (HitEnemy)
 				{
-					// Spawn default particles
-					if (ImpactParticles)
-					{
-						UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactParticles, BeamHitResult.Location);
-					}
+					UGameplayStatics::ApplyDamage(BeamHitResult.GetActor(), EquippedWeapon->GetDamage(), GetController(), this, UDamageType::StaticClass());
+				}
+			}
+			else
+			{
+				// Spawn default particles
+				if (ImpactParticles)
+				{
+					UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactParticles, BeamHitResult.Location);
 				}
 			}
 
