@@ -25,6 +25,9 @@ public:
 	virtual void BulletHit_Implementation(FHitResult HitResult) override;
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void ShowHitNumber(int32 DamageAmount, FVector HitLocation, bool bHeadShot);
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -34,6 +37,20 @@ protected:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void HideHealthBar();
+
+	void Die();
+
+	void PlayHitMontage(FName Section, float PlayRate = 1.0f);
+
+	void ResetHitReactTimer();
+
+	UFUNCTION(BlueprintCallable)
+	void StoreHitNumber(UUserWidget* HitNumber, FVector Location);
+
+	UFUNCTION()
+	void DestroyHitNumber(UUserWidget* HitNumber);
+
+	void UpdateHitNumbers();
 
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
@@ -55,6 +72,27 @@ private:
 	float HealthBarDisplayTime = 4.f;
 
 	FTimerHandle HealthBarTimer;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	UAnimMontage* HitMontage;
+
+	FTimerHandle HitReactTimer;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	float HitReactTimeMin = 0.5f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	float HitReactTimeMax = 1.f;
+
+	bool bCanHitReact = true;
+
+	/** Map to store HitNumber widgets and their hit locations */
+	UPROPERTY(VisibleAnywhere, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	TMap<UUserWidget*, FVector> HitNumbers;
+
+	/** Time before a HitNumber is removed from the screen */
+	UPROPERTY(EditAnywhere, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	float HitNumberDestroyTime = 1.5f;
 
 public:	
 	FORCEINLINE FString GetHeadBone() const { return HeadBone; }
