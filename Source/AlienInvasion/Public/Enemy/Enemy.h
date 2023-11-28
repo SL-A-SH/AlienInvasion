@@ -9,6 +9,8 @@
 
 class UParticleSystem;
 class USoundBase;
+class UBehaviorTree;
+class AEnemyController;
 
 UCLASS()
 class ALIENINVASION_API AEnemy : public ACharacter, public IBulletHitInterface
@@ -94,6 +96,15 @@ private:
 	UPROPERTY(EditAnywhere, Category = Combat, meta = (AllowPrivateAccess = "true"))
 	float HitNumberDestroyTime = 1.5f;
 
+	UPROPERTY(EditAnywhere, Category = "Behavior Tree", meta = (AllowPrivateAccess = "true"))
+	UBehaviorTree* BehaviorTree;
+
+	UPROPERTY(EditAnywhere, Category = "Behavior Tree", meta = (AllowPrivateAccess = "true", MakeEditWidget = "true"))
+	FVector PatrolPoint;
+
+	AEnemyController* EnemyController;
+
 public:	
 	FORCEINLINE FString GetHeadBone() const { return HeadBone; }
+	FORCEINLINE UBehaviorTree* GetBehaviorTree() const { return BehaviorTree; }
 };
