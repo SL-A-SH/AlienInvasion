@@ -7,33 +7,42 @@
 #include "Particles/ParticleSystemComponent.h"
 #include "Blueprint/UserWidget.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "DrawDebugHelpers.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "Components/SphereComponent.h"
+#include "Characters/ShooterCharacter.h"
 
-// Sets default values
 AEnemy::AEnemy()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	AgroSphere = CreateDefaultSubobject<USphereComponent>(TEXT("AgroSphere"));
+	AgroSphere->SetupAttachment(GetRootComponent());
+
+	CombatSphere = CreateDefaultSubobject<USphereComponent>(TEXT("CombatSphere"));
+	CombatSphere->SetupAttachment(GetRootComponent());
 }
 
-// Called when the game starts or when spawned
 void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
+
+	AgroSphere->OnComponentBeginOverlap.AddDynamic(this, &AEnemy::AgroSphereOverlap);
+	AgroSphere->OnComponentEndOverlap.AddDynamic(this, &AEnemy::AgroSphereEndOverlap);
+	 
+	CombatSphere->OnComponentBeginOverlap.AddDynamic(this, &AEnemy::CombatSphereOverlap);
+	CombatSphere->OnComponentEndOverlap.AddDynamic(this, &AEnemy::CombatSphereEndOverlap);
 	
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
 
 	EnemyController = Cast<AEnemyController>(GetController());
 
 	const FVector WorldPatrolPoint = UKismetMathLibrary::TransformLocation(GetActorTransform(), PatrolPoint);
-
-	/*DrawDebugSphere(GetWorld(), WorldPatrolPoint, 25.f, 12, FColor::Red, true);*/
+	const FVector WorldPatrolPoint2 = UKismetMathLibrary::TransformLocation(GetActorTransform(), PatrolPoint2);
 
 	if (EnemyController)
 	{
 		EnemyController->GetBlackboardComponent()->SetValueAsVector(TEXT("PatrolPoint"), WorldPatrolPoint);
+		EnemyController->GetBlackboardComponent()->SetValueAsVector(TEXT("PatrolPoint2"), WorldPatrolPoint2);
 		EnemyController->RunBehaviorTree(BehaviorTree);
 	}
 }
@@ -102,14 +111,69 @@ void AEnemy::UpdateHitNumbers()
 	}
 }
 
-// Called every frame
+void AEnemy::AgroSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (OtherActor == nullptr) return;
+
+	auto ShooterCharacter = Cast<AShooterCharacter>(OtherActor);
+	if (ShooterCharacter)
+	{
+		EnemyController->GetBlackboardComponent()->SetValueAsObject(TEXT("Target"), ShooterCharacter);
+	}
+}
+
+void AEnemy::AgroSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+}
+
+void AEnemy::SetStunned(bool Stunned)
+{
+	bStunned = Stunned;
+
+	if (EnemyController)
+	{
+		EnemyController->GetBlackboardComponent()->SetValueAsBool(TEXT("Stunned"), Stunned);
+	}
+}
+
+void AEnemy::CombatSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (OtherActor == nullptr) return;
+
+	auto ShooterCharacter = Cast<AShooterCharacter>(OtherActor);
+	if (ShooterCharacter)
+	{
+		bInAttackRange = true;
+
+		if (EnemyController)
+		{
+			EnemyController->GetBlackboardComponent()->SetValueAsBool(TEXT("InAttackRange"), true);
+		}
+	}
+}
+
+void AEnemy::CombatSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	if (OtherActor == nullptr) return;
+
+	auto ShooterCharacter = Cast<AShooterCharacter>(OtherActor);
+	if (ShooterCharacter)
+	{
+		bInAttackRange = false;
+
+		if (EnemyController)
+		{
+			EnemyController->GetBlackboardComponent()->SetValueAsBool(TEXT("InAttackRange"), false);
+		}
+	}
+}
+
 void AEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	UpdateHitNumbers();
 }
 
-// Called to bind functionality to input
 void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
@@ -129,7 +193,13 @@ void AEnemy::BulletHit_Implementation(FHitResult HitResult)
 	}
 
 	ShowHealthBar();
-	PlayHitMontage(FName("HitReactFront"));
+
+	const float Stunned = FMath::FRandRange(0.f, 1.f);
+	if (Stunned <= StunChance)
+	{
+		PlayHitMontage(FName("HitReactFront"));
+		SetStunned(true);
+	}
 }
 
 float AEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
