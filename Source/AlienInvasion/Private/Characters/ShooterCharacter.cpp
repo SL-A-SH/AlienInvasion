@@ -754,6 +754,20 @@ void AShooterCharacter::UnHighlightInventorySlot()
 	HighlightedSlot = -1;
 }
 
+float AShooterCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	if (Health - DamageAmount <= 0.f)
+	{
+		Health = 0.f;
+	}
+	else
+	{
+		Health -= DamageAmount;
+	}
+
+	return DamageAmount;
+}
+
 AWeapon* AShooterCharacter::SpawnDefaultWeapon()
 {
 	if (DefaultWeaponClass)

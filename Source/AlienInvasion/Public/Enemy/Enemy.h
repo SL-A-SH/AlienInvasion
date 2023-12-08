@@ -12,6 +12,7 @@ class USoundBase;
 class UBehaviorTree;
 class AEnemyController;
 class USphereComponent;
+class UBoxComponent;
 
 UCLASS()
 class ALIENINVASION_API AEnemy : public ACharacter, public IBulletHitInterface
@@ -45,6 +46,9 @@ protected:
 
 	void PlayHitMontage(FName Section, float PlayRate = 1.0f);
 
+	UFUNCTION(BlueprintCallable)
+	void PlayAttackMontage(float PlayRate);
+
 	void ResetHitReactTimer();
 
 	UFUNCTION(BlueprintCallable)
@@ -69,6 +73,26 @@ protected:
 
 	UFUNCTION()
 	virtual void CombatSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+	UFUNCTION()
+	virtual void OnLeftWeaponOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()
+	virtual void OnRightWeaponOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION(BlueprintCallable)
+	void ActivateLeftWeapon();
+
+	UFUNCTION(BlueprintCallable)
+	void DeactivateLeftWeapon();
+
+	UFUNCTION(BlueprintCallable)
+	void ActivateRightWeapon();
+
+	UFUNCTION(BlueprintCallable)
+	void DeactivateRightWeapon();
+
+	void DoDamage(AActor* Victim);
 
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
@@ -137,6 +161,18 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
 	bool bInAttackRange;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	UAnimMontage* AttackMontage;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	UBoxComponent* LeftWeaponCollision;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	UBoxComponent* RightWeaponCollision;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	float BaseDamage = 20.f;
 
 public:	
 	FORCEINLINE FString GetHeadBone() const { return HeadBone; }

@@ -69,9 +69,11 @@ public:
 
 	void IncrementInterpLocItemCount(int32 Index, int32 Amount);
 
-	void StartPickupSoundTimer();
+	void StartPickupSoundTimer(); 
 	void StartEquipSoundTimer();
 	void UnHighlightInventorySlot();
+
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
 protected:
 	virtual void BeginPlay() override;
@@ -411,6 +413,12 @@ private:
 	/** The index for the currently highlighted slot */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Inventory, meta = (AllowPrivateAccess = "true"))
 	int32 HighlightedSlot = -1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	float Health = 100.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	float MaxHealth = 100.f;
 
 	/** Animation Montages */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Movement, meta = (AllowPrivateAccess = "true"))
