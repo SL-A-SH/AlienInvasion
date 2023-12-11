@@ -11,6 +11,7 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Components/SphereComponent.h"
 #include "Components/BoxComponent.h"
+#include "Engine/SkeletalMeshSocket.h"
 #include "Characters/ShooterCharacter.h"
 
 AEnemy::AEnemy()
@@ -208,25 +209,56 @@ void AEnemy::CombatSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AA
 	}
 }
 
-void AEnemy::DoDamage(AActor* Victim)
+void AEnemy::DoDamage(AShooterCharacter* Victim)
 {
 	if (Victim == nullptr) return;
 
-	auto Character = Cast<AShooterCharacter>(Victim);
-	if (Character)
+	UGameplayStatics::ApplyDamage(Victim, BaseDamage, EnemyController, this, UDamageType::StaticClass());
+
+	if (Victim->GetMeeleImpactSound())
 	{
-		UGameplayStatics::ApplyDamage(Character, BaseDamage, EnemyController, this, UDamageType::StaticClass());
+		UGameplayStatics::PlaySoundAtLocation(this, Victim->GetMeeleImpactSound(), GetActorLocation());
+	}
+}
+
+void AEnemy::SpawnBlood(AShooterCharacter* Victim, FName SocketName)
+{
+	const USkeletalMeshSocket* TipSocket = GetMesh()->GetSocketByName(SocketName);
+	if (TipSocket)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Spawn Blood"))
+		const FTransform SocketTransform = TipSocket->GetSocketTransform(GetMesh());
+		if (Victim->GetBloodParticles())
+		{
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), Victim->GetBloodParticles(), Victim->GetActorLocation());
+		}
 	}
 }
 
 void AEnemy::OnLeftWeaponOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	DoDamage(OtherActor);
+	if (OtherActor == nullptr) return;
+
+	auto Character = Cast<AShooterCharacter>(OtherActor);
+
+	if (Character)
+	{
+		DoDamage(Character);
+		SpawnBlood(Character, LeftWeaponSocket);
+	}
 }
 
 void AEnemy::OnRightWeaponOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	DoDamage(OtherActor);
+	if (OtherActor == nullptr) return;
+
+	auto Character = Cast<AShooterCharacter>(OtherActor);
+
+	if (Character)
+	{
+		DoDamage(Character);
+		SpawnBlood(Character, RightWeaponSocket);
+	}
 }
 
 void AEnemy::ActivateLeftWeapon()

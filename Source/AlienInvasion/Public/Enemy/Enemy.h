@@ -13,6 +13,7 @@ class UBehaviorTree;
 class AEnemyController;
 class USphereComponent;
 class UBoxComponent;
+class AShooterCharacter;
 
 UCLASS()
 class ALIENINVASION_API AEnemy : public ACharacter, public IBulletHitInterface
@@ -92,7 +93,8 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void DeactivateRightWeapon();
 
-	void DoDamage(AActor* Victim);
+	void DoDamage(AShooterCharacter* Victim);
+	void SpawnBlood(AShooterCharacter* Victim, FName SocketName);
 
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
@@ -173,6 +175,12 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
 	float BaseDamage = 20.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	FName LeftWeaponSocket = TEXT("FX_Trail_L_01");
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	FName RightWeaponSocket = TEXT("FX_Trail_R_01");
 
 public:	
 	FORCEINLINE FString GetHeadBone() const { return HeadBone; }
