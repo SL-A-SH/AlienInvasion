@@ -223,15 +223,27 @@ void AEnemy::DoDamage(AShooterCharacter* Victim)
 
 void AEnemy::SpawnBlood(AShooterCharacter* Victim, FName SocketName)
 {
+	if (Victim == nullptr) return;
+
 	const USkeletalMeshSocket* TipSocket = GetMesh()->GetSocketByName(SocketName);
 	if (TipSocket)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Spawn Blood"))
 		const FTransform SocketTransform = TipSocket->GetSocketTransform(GetMesh());
 		if (Victim->GetBloodParticles())
 		{
 			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), Victim->GetBloodParticles(), Victim->GetActorLocation());
 		}
+	}
+}
+
+void AEnemy::StunCharacter(AShooterCharacter* Victim)
+{
+	if (Victim == nullptr) return;
+
+	const float Stun = FMath::FRandRange(0.f, 1.f);
+	if (Stun <= Victim->GetStunChance())
+	{
+		Victim->Stun();
 	}
 }
 
@@ -245,6 +257,7 @@ void AEnemy::OnLeftWeaponOverlap(UPrimitiveComponent* OverlappedComponent, AActo
 	{
 		DoDamage(Character);
 		SpawnBlood(Character, LeftWeaponSocket);
+		StunCharacter(Character);
 	}
 }
 
@@ -258,6 +271,7 @@ void AEnemy::OnRightWeaponOverlap(UPrimitiveComponent* OverlappedComponent, AAct
 	{
 		DoDamage(Character);
 		SpawnBlood(Character, RightWeaponSocket);
+		StunCharacter(Character);
 	}
 }
 
