@@ -196,6 +196,11 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void EndStun();
 
+	void Die();
+
+	UFUNCTION(BlueprintCallable)
+	void FinishDeath();
+
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	USpringArmComponent* CameraBoom;
@@ -434,6 +439,8 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
 	float StunChance = 0.25f;
 
+	bool bDying = false;
+
 	/** Animation Montages */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Movement, meta = (AllowPrivateAccess = "true"))
 	UAnimMontage* HipFireMontage;
@@ -446,6 +453,9 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
 	UAnimMontage* HitReactMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	UAnimMontage* DeathMontage;
 
 public:
 	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }

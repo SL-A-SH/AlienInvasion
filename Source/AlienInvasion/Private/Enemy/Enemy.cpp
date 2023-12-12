@@ -67,6 +67,7 @@ void AEnemy::BeginPlay()
 	{
 		EnemyController->GetBlackboardComponent()->SetValueAsVector(TEXT("PatrolPoint"), WorldPatrolPoint);
 		EnemyController->GetBlackboardComponent()->SetValueAsVector(TEXT("PatrolPoint2"), WorldPatrolPoint2);
+		EnemyController->GetBlackboardComponent()->SetValueAsBool(FName("CanAttack"), true);
 		EnemyController->RunBehaviorTree(BehaviorTree);
 	}
 }
@@ -79,7 +80,17 @@ void AEnemy::ShowHealthBar_Implementation()
 
 void AEnemy::Die()
 {
+	if (bDying) return;
+	bDying = true;
+
 	HideHealthBar();
+	PlayDeathMontage();
+
+	if (EnemyController)
+	{
+		EnemyController->GetBlackboardComponent()->SetValueAsBool(FName("Dead"), true);
+		EnemyController->StopMovement();
+	}
 }
 
 void AEnemy::PlayHitMontage(FName Section, float PlayRate)
@@ -113,6 +124,23 @@ void AEnemy::PlayAttackMontage(float PlayRate)
 
 		AnimInstance->Montage_Play(AttackMontage, PlayRate);
 		AnimInstance->Montage_JumpToSection(SectionName, AttackMontage);
+	}
+
+	bCanAttack = false;
+	GetWorldTimerManager().SetTimer(AttackWaitTimer, this, &AEnemy::ResetCanAttack, AttackWaitTime);
+
+	if (EnemyController)
+	{
+		EnemyController->GetBlackboardComponent()->SetValueAsBool(FName("CanAttack"), false);
+	}
+}
+
+void AEnemy::PlayDeathMontage()
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && DeathMontage)
+	{
+		AnimInstance->Montage_Play(DeathMontage);
 	}
 }
 
@@ -247,6 +275,20 @@ void AEnemy::StunCharacter(AShooterCharacter* Victim)
 	}
 }
 
+void AEnemy::ResetCanAttack()
+{
+	bCanAttack = true;
+	if (EnemyController)
+	{
+		EnemyController->GetBlackboardComponent()->SetValueAsBool(FName("CanAttack"), true);
+	}
+}
+
+void AEnemy::DestroyEnemy()
+{
+	Destroy();
+}
+
 void AEnemy::OnLeftWeaponOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (OtherActor == nullptr) return;
@@ -295,6 +337,13 @@ void AEnemy::DeactivateRightWeapon()
 	RightWeaponCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
+void AEnemy::FinishDeath()
+{
+	GetMesh()->bPauseAnims = true;
+
+	GetWorldTimerManager().SetTimer(DeathTimer, this, &AEnemy::DestroyEnemy, DeathTime);
+}
+
 void AEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -319,6 +368,8 @@ void AEnemy::BulletHit_Implementation(FHitResult HitResult)
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactParticles, HitResult.Location, FRotator(0.f), true);
 	}
 
+	if (bDying) return;
+
 	ShowHealthBar();
 
 	const float Stunned = FMath::FRandRange(0.f, 1.f);
@@ -331,6 +382,11 @@ void AEnemy::BulletHit_Implementation(FHitResult HitResult)
 
 float AEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
+	if (EnemyController)
+	{
+		EnemyController->GetBlackboardComponent()->SetValueAsObject(TEXT("Target"), DamageCauser);
+	}
+
 	if (Health - DamageAmount <= 0.f)
 	{
 		Health = 0.f;

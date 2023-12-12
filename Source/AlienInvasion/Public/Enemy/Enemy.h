@@ -50,6 +50,8 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void PlayAttackMontage(float PlayRate);
 
+	void PlayDeathMontage();
+
 	void ResetHitReactTimer();
 
 	UFUNCTION(BlueprintCallable)
@@ -93,9 +95,16 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void DeactivateRightWeapon();
 
+	UFUNCTION(BlueprintCallable)
+	void FinishDeath();
+
 	void DoDamage(AShooterCharacter* Victim);
 	void SpawnBlood(AShooterCharacter* Victim, FName SocketName);
 	void StunCharacter(AShooterCharacter* Victim);
+	void ResetCanAttack();
+
+	UFUNCTION()
+	void DestroyEnemy();
 
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
@@ -182,6 +191,24 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
 	FName RightWeaponSocket = TEXT("FX_Trail_R_01");
+
+	UPROPERTY(VisibleAnywhere, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	bool bCanAttack = true;
+
+	UPROPERTY(EditAnywhere, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	float AttackWaitTime = 1.f;
+
+	FTimerHandle AttackWaitTimer;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	UAnimMontage* DeathMontage;
+
+	bool bDying = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	float DeathTime = 4.f;
+
+	FTimerHandle DeathTimer;
 
 public:	
 	FORCEINLINE FString GetHeadBone() const { return HeadBone; }

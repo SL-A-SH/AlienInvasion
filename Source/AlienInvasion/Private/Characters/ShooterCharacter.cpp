@@ -21,6 +21,8 @@
 #include "AlienInvasion/AlienInvasion.h"
 #include "Interfaces/BulletHitInterface.h"
 #include "Enemy/Enemy.h"
+#include "Enemy/EnemyController.h"
+#include "BehaviorTree/BlackboardComponent.h"
 
 AShooterCharacter::AShooterCharacter()
 {
@@ -756,6 +758,8 @@ void AShooterCharacter::UnHighlightInventorySlot()
 
 void AShooterCharacter::Stun()
 {
+	if (bDying) return;
+
 	CombatState = ECombatState::ECS_Stunned;
 
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
@@ -770,6 +774,13 @@ float AShooterCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dama
 	if (Health - DamageAmount <= 0.f)
 	{
 		Health = 0.f;
+		Die();
+
+		auto EnemyController = Cast<AEnemyController>(EventInstigator);
+		if (EnemyController)
+		{
+			EnemyController->GetBlackboardComponent()->SetValueAsBool(FName(TEXT("CharacterDead")), true);
+		}
 	}
 	else
 	{
@@ -1083,6 +1094,28 @@ void AShooterCharacter::EndStun()
 	if (bAimingButtonPressed)
 	{
 		Aim();
+	}
+}
+
+void AShooterCharacter::Die()
+{
+	if (bDying) return;
+	bDying = true;
+
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && DeathMontage)
+	{
+		AnimInstance->Montage_Play(DeathMontage);
+	}
+}
+
+void AShooterCharacter::FinishDeath()
+{
+	GetMesh()->bPauseAnims = true;
+	APlayerController* PC = UGameplayStatics::GetPlayerController(this, 0);
+	if (PC)
+	{
+		DisableInput(PC);
 	}
 }
 
