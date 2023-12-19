@@ -403,7 +403,7 @@ void AShooterCharacter::SendBullet()
 
 				if (BulletHitInterface)
 				{
-					BulletHitInterface->BulletHit_Implementation(BeamHitResult);
+					BulletHitInterface->BulletHit_Implementation(BeamHitResult, this, GetController());
 				}
 
 				AEnemy* HitEnemy = Cast<AEnemy>(BeamHitResult.GetActor());

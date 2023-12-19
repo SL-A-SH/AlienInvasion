@@ -7,6 +7,9 @@
 #include "Interfaces/BulletHitInterface.h"
 #include "Explosive.generated.h"
 
+class USphereComponent;
+class UStaticMeshComponent;
+
 UCLASS()
 class ALIENINVASION_API AExplosive : public AActor, public IBulletHitInterface
 {
@@ -26,9 +29,18 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat)
 	USoundBase* ImpactSound;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat)
+	UStaticMeshComponent* ExplosiveMesh;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat)
+	USphereComponent* OverlapSphere;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat)
+	float Damage = 50.f;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	virtual void BulletHit_Implementation(FHitResult HitResult) override;
+	virtual void BulletHit_Implementation(FHitResult HitResult, AActor* Shooter, AController* ShooterController) override;
 };
