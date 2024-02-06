@@ -324,7 +324,7 @@ private:
 
 	/** Starting amount of 9mm ammo */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Items, meta = (AllowPrivateAccess = "true"))
-	int32 Starting9mmAmmo = 85;
+	int32 Starting9mmAmmo = 25;
 
 	/** Starting amount of AR ammo */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Items, meta = (AllowPrivateAccess = "true"))
@@ -475,4 +475,9 @@ public:
 	FORCEINLINE USoundBase* GetMeeleImpactSound() const { return MeleeImpactSound; }
 	FORCEINLINE UParticleSystem* GetBloodParticles() const { return BloodParticles; }
 	FORCEINLINE float GetStunChance() const { return StunChance; }
+
+	FORCEINLINE float GetHealth() const { return Health; }
+	FORCEINLINE void SetHealth(float Amount) { Health = Amount; }
+
+	FORCEINLINE float GetMaxHealth() const { return MaxHealth; }
 };
